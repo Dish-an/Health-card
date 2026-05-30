@@ -92,11 +92,17 @@
         
         .diagnosis-box { background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #c2410c; }
         .document-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #166534; }
+        .doctor-box { background: #f0fdfa; border: 1px solid #99f6e4; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #115e59; }
         
         .vitals-grid { display: flex; gap: 12px; background: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; justify-content: space-between; }
         .form-row-three { display: flex; gap: 10px; }
         .form-row-three > div { flex: 1; }
-        #file-status-msg { font-size: 13px; color: var(--med-teal); margin-top: -4px; margin-bottom: 10px; font-weight: 600; }
+        #file-status-msg, #quick-file-status { font-size: 13px; color: var(--med-teal); margin-top: -4px; margin-bottom: 10px; font-weight: 600; }
+
+        /* Timeline Presentation Elements */
+        .timeline-card { background: #ffffff; border: 1px solid var(--med-border); border-left: 4px solid var(--med-blue); padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
+        .timeline-meta { font-size: 12px; color: var(--med-text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; font-weight: 500; }
+        .quick-consult-panel { background: #f8fafc; border: 1px dashed var(--med-blue); padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid var(--med-teal); }
     </style>
 </head>
 <body>
@@ -179,7 +185,7 @@
             </div>
         </div>
 
-        <label for="input-patient-diagnosis">Checkup Diagnosis</label>
+        <label for="input-patient-diagnosis">Primary Checkup Diagnosis</label>
         <input type="text" id="input-patient-diagnosis" placeholder="e.g., Acute Bronchitis, Seasonal Flu">
 
         <label for="input-patient-file">Upload Diagnosis Photo / Document</label>
@@ -191,7 +197,7 @@
         <textarea id="input-patient-notes" rows="4" placeholder="Type clinical history, allergies, or treatment updates here..."></textarea>
         
         <button id="action-save-patient" class="btn-teal">Save to Database</button>
-        <button id="action-delete-patient" class="btn-danger hidden">🗑| Remove Entire Patient ID</button>
+        <button id="action-delete-patient" class="btn-danger hidden">🗑 Remove Entire Patient ID</button>
         <button id="action-cancel-form" class="btn-secondary">Cancel</button>
     </div>
 
@@ -206,21 +212,45 @@
             <div><strong>Blood Type:</strong> <span id="record-blood">--</span></div>
         </div>
 
+        <div id="record-doctor-area" class="doctor-box hidden">
+            <strong>👨‍⚕️ Recently Visited Doctor:</strong> <span id="record-last-doctor"></span>
+        </div>
+
         <div class="diagnosis-box">
-            <strong>📋 Latest Diagnosis:</strong> <span id="record-diagnosis"></span>
+            <strong>📋 Latest Stamped Diagnosis:</strong> <span id="record-diagnosis"></span>
         </div>
 
         <div id="record-document-area" class="document-box hidden">
-            <strong>📁 Attached Lab Record / Photo:</strong> <span id="record-test-title"></span><br>
+            <strong>📁 Latest Laboratory Document / Photo:</strong> <span id="record-test-title"></span><br>
             <a id="record-test-link" href="#" target="_blank" download="medical-document" style="color: #15803d; font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">Click here to open/download file</a>
         </div>
 
-        <div style="font-weight: 600; font-size: 14px; color: var(--med-navy); margin-bottom: 6px;">Clinical Notes:</div>
-        <div id="record-notes" style="text-align: left; white-space: pre-wrap; line-height: 1.6; color: var(--med-text-main); font-size: 15px; background: #fafafa; padding: 12px; border: 1px solid var(--med-border); border-radius: 6px;"></div>
+        <div style="font-weight: 600; font-size: 14px; color: var(--med-navy); margin-bottom: 6px;">Initial Clinical Notes:</div>
+        <div id="record-notes" style="text-align: left; white-space: pre-wrap; line-height: 1.6; color: var(--med-text-main); font-size: 15px; background: #fafafa; padding: 12px; border: 1px solid var(--med-border); border-radius: 6px; margin-bottom: 20px;"></div>
         
+        <div style="font-weight: 700; font-size: 15px; color: var(--med-navy); margin-top: 25px; margin-bottom: 10px;">📋 Progressive Checkup History Logs</div>
+        <div id="visit-history-timeline"></div>
+
+        <div class="quick-consult-panel">
+            <h3 style="margin: 0 0 4px 0; font-size: 16px; color: var(--med-navy); text-align: left;">➕ Log New Medical Visit</h3>
+            <p style="margin: 0 0 15px 0; font-size: 12px; color: var(--med-text-muted); text-align: left;">Append current checkups without modifying basic registration data.</p>
+            
+            <label for="quick-input-diagnosis" style="margin-top:0;">Visit Diagnosis & Details</label>
+            <textarea id="quick-input-diagnosis" rows="3" placeholder="Describe symptoms, assessment findings, or prescription modifications..."></textarea>
+            
+            <label for="quick-input-file">Attach Consultation File / Photo</label>
+            <input type="file" id="quick-input-file" accept="image/*,application/pdf">
+            <div id="quick-file-status"></div>
+            
+            <label for="quick-doctor-password">🔐 Doctor Verification Password</label>
+            <input type="password" id="quick-doctor-password" placeholder="Enter your custom private doctor key..." autocomplete="off">
+            
+            <button id="action-save-quick-visit" class="btn-teal" style="margin-top: 10px;">Sign & Authorize Entry</button>
+        </div>
+
         <hr style="border: 0; border-top: 1px solid var(--med-border); margin: 30px 0 15px 0;">
-        <button id="action-edit-record" class="btn-warning hidden">⚙️ Edit Patient Info</button>
-        <button id="action-close-record" class="btn-blue">← Go Back</button>
+        <button id="action-edit-record" class="btn-warning hidden">⚙ Override Master Profile (Admin Only)</button>
+        <button id="action-close-record" class="btn-blue">← Close File</button>
     </div>
 
     <div id="view-change-password" class="hidden">
@@ -236,6 +266,15 @@
 </div>
 
 <script>
+    // Global Multi-Doctor Verification Registry System
+    // Map your custom passwords to the distinct names of each physician here:
+    const DOCTOR_REGISTRY = {
+        "doc101": "Dr. Sarah Jenkins (Cardiology)",
+        "doc202": "Dr. James Carter (Pediatrics)",
+        "doc303": "Dr. Amara Patel (General Medicine)",
+        "doc999": "Dr. Robert Chen (Orthopedics)"
+    };
+
     // Global Crash Safety Handler
     window.onerror = function(msg, url, line) {
         alert("🚨 JavaScript Setup Error Detected:\n\n" + msg + "\n\nLine number: " + line);
@@ -266,9 +305,11 @@
     let activeCardID = null;
     let isAdminLoggedIn = false;
     
-    // File upload temp storage variables
+    // File upload global memory buffers
     let base64FileString = "";
     let uploadedFileName = "";
+    let quickBase64FileString = "";
+    let quickUploadedFileName = "";
 
     // View Navigation Function
     function showScreen(screenId) {
@@ -434,181 +475,5 @@
         }
     }
 
-    // --- FILE CONVERSION ENGINE (Base64) ---
-    document.getElementById('input-patient-file').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const statusMsg = document.getElementById('file-status-msg');
-        const removeBtn = document.getElementById('action-remove-file');
-        
-        if (file) {
-            if (file.size > 2 * 1024 * 1024) { // 2MB Limit Guard
-                alert("File is too large! Please choose an image or document smaller than 2MB.");
-                this.value = "";
-                statusMsg.innerText = "";
-                return;
-            }
-            
-            const reader = new FileReader();
-            statusMsg.innerText = "Processing file... Please wait.";
-            
-            reader.onload = function(event) {
-                base64FileString = event.target.result;
-                uploadedFileName = file.name;
-                statusMsg.innerText = "📄 Ready: " + file.name;
-                statusMsg.style.color = "var(--med-teal)";
-                removeBtn.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Option to Clear/Remove document within Form
-    document.getElementById('action-remove-file').addEventListener('click', function() {
-        base64FileString = "";
-        uploadedFileName = "";
-        document.getElementById('input-patient-file').value = "";
-        document.getElementById('file-status-msg').innerText = "Document cleared. Save changes to update database.";
-        document.getElementById('file-status-msg').style.color = "var(--med-danger)";
-        this.classList.add('hidden');
-    });
-
-    // --- 4. VIEW & EDIT PATIENTS ---
-    function openPatientRecord(data, showEditButton) {
-        document.getElementById('record-name').innerText = data.title || 'Unknown';
-        document.getElementById('record-age').innerText = data.age || 'N/A';
-        document.getElementById('record-sex').innerText = data.sex || 'N/A';
-        document.getElementById('record-blood').innerText = data.bloodType || 'N/A';
-        document.getElementById('record-diagnosis').innerText = data.diagnosis || 'No checkup diagnosis recorded yet.';
-        document.getElementById('record-notes').innerText = data.content || '';
-        document.getElementById('record-uid').innerText = activeCardID;
-        
-        const docArea = document.getElementById('record-document-area');
-        if (data.attachedFile && data.attachedFile.trim() !== '') {
-            document.getElementById('record-test-title').innerText = data.attachedFileName || 'Checkup Document';
-            document.getElementById('record-test-link').href = data.attachedFile;
-            docArea.classList.remove('hidden');
-        } else {
-            docArea.classList.add('hidden');
-        }
-
-        if (showEditButton) {
-            document.getElementById('action-edit-record').classList.remove('hidden');
-        } else {
-            document.getElementById('action-edit-record').classList.add('hidden');
-        }
-        
-        showScreen('view-patient-record');
-    }
-
-    document.getElementById('action-close-record').addEventListener('click', () => {
-        if (isAdminLoggedIn) loadAdminDashboard();
-        else showScreen('view-homepage');
-    });
-
-    document.getElementById('action-edit-record').addEventListener('click', () => {
-        db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
-            const data = snapshot.val() || {};
-            document.getElementById('form-title-text').innerText = "Edit Patient Details";
-            document.getElementById('display-card-uid').innerText = activeCardID;
-            
-            document.getElementById('input-patient-name').value = data.title || '';
-            document.getElementById('input-patient-age').value = data.age || '';
-            document.getElementById('input-patient-sex').value = data.sex || '';
-            document.getElementById('input-patient-blood').value = data.bloodType || '';
-            document.getElementById('input-patient-diagnosis').value = data.diagnosis === 'No checkup diagnosis recorded yet.' ? '' : (data.diagnosis || '');
-            document.getElementById('input-patient-notes').value = data.content || '';
-            
-            // Reload file data if it exists
-            document.getElementById('input-patient-file').value = "";
-            if (data.attachedFile) {
-                base64FileString = data.attachedFile;
-                uploadedFileName = data.attachedFileName || "Attached Document";
-                document.getElementById('file-status-msg').innerText = "📂 Current Database Document: " + uploadedFileName;
-                document.getElementById('file-status-msg').style.color = "var(--med-blue)";
-                document.getElementById('action-remove-file').classList.remove('hidden');
-            } else {
-                base64FileString = "";
-                uploadedFileName = "";
-                document.getElementById('file-status-msg').innerText = "";
-                document.getElementById('action-remove-file').classList.add('hidden');
-            }
-            
-            document.getElementById('action-delete-patient').classList.remove('hidden'); 
-            showScreen('view-patient-form');
-        });
-    });
-
-    document.getElementById('action-save-patient').addEventListener('click', () => {
-        const name = document.getElementById('input-patient-name').value.trim();
-        const age = document.getElementById('input-patient-age').value.trim();
-        const sex = document.getElementById('input-patient-sex').value.trim();
-        const bloodType = document.getElementById('input-patient-blood').value.trim();
-        const diagnosis = document.getElementById('input-patient-diagnosis').value.trim();
-        const notes = document.getElementById('input-patient-notes').value.trim();
-
-        if (!name || !notes) {
-            alert("Please fill out Name and Notes fields.");
-            return;
-        }
-
-        db.ref('patients/' + activeCardID).set({
-            title: name,
-            age: age || 'N/A',
-            sex: sex || 'N/A',
-            bloodType: bloodType || 'N/A',
-            diagnosis: diagnosis || 'N/A',
-            attachedFile: base64FileString,
-            attachedFileName: uploadedFileName,
-            content: notes
-        }).then(() => {
-            loadAdminDashboard();
-        });
-    });
-
-    document.getElementById('action-delete-patient').addEventListener('click', () => {
-        const confirmation = confirm("Are you completely sure you want to remove this patient ID from the system? This will delete all their medical history forever.");
-        if (confirmation) {
-            db.ref('patients/' + activeCardID).remove().then(() => {
-                alert("Patient Card ID cleared successfully.");
-                loadAdminDashboard();
-            });
-        }
-    });
-
-    document.getElementById('action-cancel-form').addEventListener('click', () => {
-        loadAdminDashboard();
-    });
-
-    // --- 5. PASSWORD MANAGEMENT ---
-    document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
-        document.getElementById('pw-current').value = '';
-        document.getElementById('pw-new').value = '';
-        showScreen('view-change-password');
-    });
-
-    document.getElementById('action-cancel-password').addEventListener('click', () => loadAdminDashboard());
-
-    document.getElementById('action-save-password').addEventListener('click', () => {
-        const currentInput = document.getElementById('pw-current').value;
-        const newInput = document.getElementById('pw-new').value.trim();
-
-        db.ref('system/admin_password').once('value').then((snapshot) => {
-            let actualPassword = snapshot.val() || 'admin123';
-            if (currentInput !== actualPassword) {
-                alert("Incorrect current password.");
-                return;
-            }
-            if (!newInput) {
-                alert("Please enter a new password.");
-                return;
-            }
-
-            db.ref('system/admin_password').set(newInput).then(() => {
-                alert("Password changed successfully.");
-                loadAdminDashboard();
-            });
-        });
-    });
-</script>
-</body>
-</html>
+    // --- BASE64 MULTI-CONVERSION FILE ENGINE ---
+    document
