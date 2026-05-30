@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedLink Cloud Portal</title>
+    <title>MedLink Patient Portal</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -12,7 +12,6 @@
             --med-navy: #1e293b;
             --med-blue: #0284c7;
             --med-teal: #0d9488;
-            --med-danger: #e11d48;
             --med-bg: #f8fafc;
             --med-card: #ffffff;
             --med-text-main: #0f172a;
@@ -40,24 +39,29 @@
             width: 100%;
             box-sizing: border-box;
         }
-        h2 { font-size: 24px; font-weight: 700; color: var(--med-navy); margin-top: 0; margin-bottom: 8px; text-align: center; letter-spacing: -0.5px; }
+        h2 { font-size: 24px; font-weight: 700; color: var(--med-navy); margin-top: 0; margin-bottom: 8px; text-align: center; }
         h1.page-title { font-size: 28px; font-weight: 800; color: var(--med-blue); margin: 0 0 5px 0; text-align: left; }
         p.subtitle { color: var(--med-text-muted); font-size: 14px; text-align: center; margin-bottom: 30px; line-height: 1.5; }
-        .med-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
         .med-menu-card {
-            border: 2px solid var(--med-border); border-radius: 10px; padding: 24px 16px;
+            border: 2px solid var(--med-border); border-radius: 10px; padding: 30px 16px;
             text-align: center; cursor: pointer; transition: all 0.2s ease-in-out;
             background: var(--med-card); display: flex; flex-direction: column; align-items: center;
+            margin: 0 auto; max-width: 320px;
         }
         .med-menu-card:hover { border-color: var(--med-blue); background: #f0f9ff; transform: translateY(-2px); }
-        .med-menu-card h3 { margin: 14px 0 6px 0; font-size: 16px; font-weight: 600; color: var(--med-navy); }
-        .med-menu-card p { margin: 0; font-size: 12px; color: var(--med-text-muted); line-height: 1.4; }
+        .med-menu-card h3 { margin: 14px 0 6px 0; font-size: 18px; font-weight: 600; color: var(--med-navy); }
+        .med-menu-card p { margin: 0; font-size: 13px; color: var(--med-text-muted); line-height: 1.4; }
         .med-icon-circle { 
             width: 56px; height: 56px; background: #f1f5f9; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; font-size: 24px;
         }
         .med-menu-card:hover .med-icon-circle { background: #e0f2fe; color: var(--med-blue); }
-        label { display: block; text-align: left; margin-top: 20px; font-weight: 600; font-size: 13px; color: var(--med-navy); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .admin-link-wrapper { text-align: center; margin-top: 40px; }
+        .admin-link-wrapper a { color: var(--med-text-muted); font-size: 13px; text-decoration: none; transition: color 0.15s ease; }
+        .admin-link-wrapper a:hover { color: var(--med-blue); text-decoration: underline; }
+
+        label { display: block; text-align: left; margin-top: 20px; font-weight: 600; font-size: 13px; color: var(--med-navy); text-transform: uppercase; }
         input[type="text"], input[type="password"], textarea {
             width: 100%; padding: 14px; margin: 8px 0 16px 0;
             border: 1px solid var(--med-border); border-radius: 6px; box-sizing: border-box; font-size: 15px;
@@ -77,10 +81,10 @@
         .hidden { display: none !important; }
         .status-badge { margin-top: 25px; padding: 12px; border-radius: 6px; background: #f1f5f9; font-weight: 500; font-size: 13px; text-align: center; color: var(--med-text-muted); border: 1px solid var(--med-border); }
         .scan-terminal-box { background: #f8fafc; border: 1px solid var(--med-border); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center; }
-        .divider-line { color: var(--med-text-muted); margin: 25px 0; display: flex; align-items: center; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .divider-line { color: var(--med-text-muted); margin: 25px 0; display: flex; align-items: center; font-size: 12px; font-weight: 500; text-transform: uppercase; }
         .divider-line::before, .divider-line::after { content: ""; flex: 1; background: var(--med-border); height: 1px; margin: 0 15px; }
         .clinical-badge { font-family: monospace; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; }
-        .clinical-feed { text-align: left; margin-top: 20px; max-height: 220px; overflow-y: auto; border: 1px solid var(--med-border); border-radius: 6px; background: #f8fafc; }
+        .clinical-feed { text-align: left; margin-top: 20px; max-height: 300px; overflow-y: auto; border: 1px solid var(--med-border); border-radius: 6px; background: #f8fafc; }
         .feed-row { padding: 14px 18px; border-bottom: 1px solid var(--med-border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .feed-row:hover { background: #f0fdf4; }
     </style>
@@ -90,86 +94,99 @@
 <div class="med-container">
     
     <div id="view-homepage">
-        <h2>MedLink Cloud Portal</h2>
-        <p class="subtitle">Select operational vector to read/write encrypted medical node cards.</p>
-        <div class="med-grid">
-            <div class="med-menu-card" id="menu-opt-create">
-                <div class="med-icon-circle">📋</div>
-                <h3>Assign ID</h3>
-                <p>Configure records or register new credentials.</p>
-            </div>
-            <div class="med-menu-card" id="menu-opt-read">
-                <div class="med-icon-circle">🩺</div>
-                <h3>Patient Read</h3>
-                <p>Instant hardware fetch to load cloud profile files.</p>
-            </div>
+        <h2>MedLink Portal</h2>
+        <p class="subtitle">Welcome to the hospital database.</p>
+        
+        <div class="med-menu-card" id="menu-opt-read">
+            <div class="med-icon-circle">🩺</div>
+            <h3>Scan Patient Card</h3>
+            <p>Tap a card to view medical records.</p>
+        </div>
+
+        <div class="admin-link-wrapper">
+            <a href="#" id="link-admin-login">Admin Access</a>
         </div>
     </div>
 
-    <div id="view-gateway" class="hidden">
-        <h2 id="gateway-title">Device Link Interface</h2>
-        <p id="gateway-subtitle" class="subtitle">Awaiting card connection frequency...</p>
+    <div id="view-admin-login" class="hidden">
+        <h2>Administrator Login</h2>
+        <p class="subtitle">Please enter the password to access the patient database.</p>
         
-        <div id="password-auth-block" class="hidden">
-            <label for="admin-password-input">Security Authentication Key</label>
-            <input type="password" id="admin-password-input" placeholder="Enter authorization credential..." autocomplete="off">
-        </div>
+        <label for="admin-login-password">Password</label>
+        <input type="password" id="admin-login-password" placeholder="Enter admin password..." autocomplete="off">
+        
+        <button id="action-login" class="btn-blue">Log In</button>
+        <button id="action-cancel-login" class="btn-secondary">Cancel</button>
+    </div>
 
+    <div id="view-admin-dashboard" class="hidden">
+        <h2>Admin Dashboard</h2>
+        <p class="subtitle">Manage all saved patient records below.</p>
+        
+        <button id="action-go-register" class="btn-teal" style="margin-top: 0;">➕ Register New Card</button>
+        
+        <div class="clinical-feed" id="patient-directory"></div>
+        
+        <button id="action-go-to-change-pw" class="btn-warning">⚙️ Change Admin Password</button>
+        <button id="action-logout" class="btn-secondary">🔒 Log Out</button>
+    </div>
+
+    <div id="view-scanner" class="hidden">
+        <h2 id="scanner-title">Scan Card</h2>
+        <p id="scanner-subtitle" class="subtitle">Hold the card against the reader.</p>
+        
         <div class="scan-terminal-box">
-            <label for="desktop-hidden-input" style="margin-top:0; margin-bottom: 8px; text-align: center; color: var(--med-text-muted);">💻 Desktop USB Diagnostic Link</label>
-            <input type="text" id="desktop-hidden-input" placeholder="Click field & apply hardware scan..." autocomplete="off">
+            <label for="desktop-hidden-input" style="margin-top:0; margin-bottom: 8px; text-align: center; color: var(--med-text-muted);">💻 Laptop USB Reader Link</label>
+            <input type="text" id="desktop-hidden-input" placeholder="Click here before scanning on laptop..." autocomplete="off">
         </div>
 
-        <div class="divider-line">Or Phone Sensor</div>
-        <button id="mobile-scan-trigger" class="btn-blue">📱 Initialize Mobile Hardware Sensor</button>
-        <div id="scan-status" class="status-badge">Peripheral State: Idle</div>
+        <div class="divider-line">Or Use Phone Sensor</div>
+        <button id="mobile-scan-trigger" class="btn-blue">📱 Scan with Phone</button>
+        <div id="scan-status" class="status-badge">Status: Ready</div>
         
-        <button id="action-exit-gateway" class="btn-secondary" style="margin-top: 25px;">← Return to Main Hub</button>
+        <button id="action-cancel-scan" class="btn-secondary" style="margin-top: 25px;">← Go Back</button>
     </div>
 
-    <div id="view-support-panel" class="hidden">
-        <h2>Cloud Record Directory</h2>
-        <p class="subtitle">Live Administrative Cloud Registry Index.</p>
-        <div class="clinical-feed" id="support-directory-container"></div>
-        <button id="action-go-to-change-pw" class="btn-warning">⚙️ Update Authorization Key</button>
-        <button id="action-exit-support" class="btn-secondary">🔒 Securing Log Out</button>
+    <div id="view-patient-form" class="hidden">
+        <h2 id="form-title-text">Register New Patient</h2>
+        <p style="font-size: 13px; color: var(--med-text-muted); text-align: center; margin-bottom: 20px;">Card ID Number: <span id="display-card-uid" class="clinical-badge"></span></p>
+        
+        <label for="input-patient-name">Patient Name</label>
+        <input type="text" id="input-patient-name" placeholder="e.g., John Doe">
+        
+        <label for="input-patient-notes">Medical Records / Notes</label>
+        <textarea id="input-patient-notes" rows="6" placeholder="Type clinical notes, allergies, or history here..."></textarea>
+        
+        <button id="action-save-patient" class="btn-teal">Save to Database</button>
+        <button id="action-cancel-form" class="btn-secondary">Cancel</button>
+    </div>
+
+    <div id="view-patient-record" class="hidden">
+        <h1 id="record-name" class="page-title"></h1>
+        <p style="font-size: 13px; color: var(--med-text-muted); text-align: left; margin-top: 0; margin-bottom: 20px;">Card ID: <span id="record-uid" style="font-family: monospace; font-weight: 600;"></span></p>
+        <hr style="border: 0; border-top: 1px solid var(--med-border); margin-bottom: 20px;">
+        
+        <div id="record-notes" style="text-align: left; white-space: pre-wrap; line-height: 1.6; color: var(--med-text-main); font-size: 15px;"></div>
+        
+        <hr style="border: 0; border-top: 1px solid var(--med-border); margin: 30px 0 15px 0;">
+        <button id="action-edit-record" class="btn-warning hidden">⚙️ Edit Patient Info</button>
+        <button id="action-close-record" class="btn-blue">← Go Back</button>
     </div>
 
     <div id="view-change-password" class="hidden">
-        <h2>Modify Portal Security Key</h2>
-        <label for="pw-current">Verify Current Key</label>
-        <input type="password" id="pw-current" placeholder="Input active validation key...">
-        <label for="pw-new">New Master Key Designation</label>
-        <input type="password" id="pw-new" placeholder="Input new secure sequence...">
-        <button id="action-submit-pw-change" class="btn-teal">Commit Security Key Changes</button>
-        <button id="action-cancel-pw-change" class="btn-secondary">Return to Index</button>
-    </div>
-
-    <div id="view-creation-page" class="hidden">
-        <h2 id="form-view-title">Initialize Registry File</h2>
-        <p style="font-size: 13px; color: var(--med-text-muted); text-align: center; margin-bottom: 20px;">Mapping Address Token: <span id="target-new-uid" class="clinical-badge"></span></p>
-        <label for="form-title">Profile Header / Patient Name</label>
-        <input type="text" id="form-title" placeholder="e.g., Patient #0912-A / Lab Profile">
-        <label for="form-content">Encrypted Profile Content / Clinical Notes</label>
-        <textarea id="form-content" rows="6" placeholder="Compile charts or asset logs here..."></textarea>
-        <button id="action-save" class="btn-teal">Authorize & Push to Cloud</button>
-        <button id="action-cancel-creation" class="btn-secondary">Abort Session</button>
-    </div>
-
-    <div id="view-live-page" class="hidden">
-        <h1 id="live-page-title" class="page-title"></h1>
-        <p style="font-size: 13px; color: var(--med-text-muted); text-align: left; margin-top: 0; margin-bottom: 20px;">System Authentication Signature: <span id="target-live-uid" style="font-family: monospace; font-weight: 600;"></span></p>
-        <hr style="border: 0; border-top: 1px solid var(--med-border); margin-bottom: 20px;">
-        <div id="live-page-content" style="text-align: left; white-space: pre-wrap; line-height: 1.6; color: var(--med-text-main); font-size: 15px;"></div>
-        <hr style="border: 0; border-top: 1px solid var(--med-border); margin: 30px 0 15px 0;">
-        <button id="action-edit-page" class="btn-warning hidden">⚙️ Modify Content (Authorization Active)</button>
-        <button id="action-exit-page" class="btn-blue">← Close Profile File</button>
+        <h2>Change Admin Password</h2>
+        <label for="pw-current">Current Password</label>
+        <input type="password" id="pw-current" placeholder="Enter current password...">
+        <label for="pw-new">New Password</label>
+        <input type="password" id="pw-new" placeholder="Enter new password...">
+        <button id="action-save-password" class="btn-teal">Save New Password</button>
+        <button id="action-cancel-password" class="btn-secondary">Go Back</button>
     </div>
 
 </div>
 
 <script>
-    // Live Firebase Config Keys Injected Successfully
+    // Live Firebase Config Keys
     const firebaseConfig = {
         apiKey: "AIzaSyDdUc_WDv8vkVV5LDuwwQpWaeDfw6Tso30",
         authDomain: "babu-5b0b4.firebaseapp.com",
@@ -180,265 +197,254 @@
         appId: "1:912366477405:web:e7ade3d21de3d77639edb4"
     };
 
-    // Initialize Database Engine
+    // Initialize Database
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DOM Target Selectors
-    const viewHomepage = document.getElementById('view-homepage');
-    const viewGateway = document.getElementById('view-gateway');
-    const viewSupportPanel = document.getElementById('view-support-panel');
-    const viewChangePassword = document.getElementById('view-change-password');
-    const viewCreationPage = document.getElementById('view-creation-page');
-    const viewLivePage = document.getElementById('view-live-page');
+    // App State Variables
+    let currentMode = null; // 'READ' or 'CREATE'
+    let activeCardID = null;
+    let isAdminLoggedIn = false;
 
-    const passwordBlock = document.getElementById('password-auth-block');
-    const passwordInput = document.getElementById('admin-password-input');
-    const desktopInput = document.getElementById('desktop-hidden-input');
-    const mobileBtn = document.getElementById('mobile-scan-trigger');
-    const scanStatus = document.getElementById('scan-status');
-    const directoryContainer = document.getElementById('support-directory-container');
-    const editBtn = document.getElementById('action-edit-page');
-
-    const formViewTitle = document.getElementById('form-view-title');
-    const formTitle = document.getElementById('form-title');
-    const formContent = document.getElementById('form-content');
-
-    let appCurrentMode = null; 
-    let activeCardUID = null;
-    let isAdminAuthenticated = false;
-    let fallbackPassword = 'admin123'; 
-
-    function navigateTo(targetScreen) {
-        viewHomepage.classList.add('hidden');
-        viewGateway.classList.add('hidden');
-        viewSupportPanel.classList.add('hidden');
-        viewChangePassword.classList.add('hidden');
-        viewCreationPage.classList.add('hidden');
-        viewLivePage.classList.add('hidden');
+    // View Navigation Function
+    function showScreen(screenId) {
+        // Hide all screens
+        document.getElementById('view-homepage').classList.add('hidden');
+        document.getElementById('view-admin-login').classList.add('hidden');
+        document.getElementById('view-admin-dashboard').classList.add('hidden');
+        document.getElementById('view-scanner').classList.add('hidden');
+        document.getElementById('view-patient-form').classList.add('hidden');
+        document.getElementById('view-patient-record').classList.add('hidden');
+        document.getElementById('view-change-password').classList.add('hidden');
         
-        targetScreen.classList.remove('hidden');
-        if (targetScreen === viewGateway) {
-            desktopInput.value = '';
-            desktopInput.focus();
+        // Show target screen
+        document.getElementById(screenId).classList.remove('hidden');
+        
+        // Auto-focus the hidden input if we go to the scanner screen
+        if (screenId === 'view-scanner') {
+            document.getElementById('desktop-hidden-input').value = '';
+            document.getElementById('desktop-hidden-input').focus();
         }
     }
 
-    // --- VIEW INIT ROUTER ---
-    document.getElementById('menu-opt-create').addEventListener('click', () => {
-        appCurrentMode = 'CREATE';
-        document.getElementById('gateway-title').innerText = "Administrative Configuration";
-        document.getElementById('gateway-subtitle').innerText = "Authorize credentials to update cloud network data.";
-        passwordBlock.classList.remove('hidden');
-        passwordInput.value = '';
-        navigateTo(viewGateway);
-    });
-
+    // --- 1. HOMEPAGE & LOGIN FLOW ---
     document.getElementById('menu-opt-read').addEventListener('click', () => {
-        appCurrentMode = 'READ';
-        document.getElementById('gateway-title').innerText = "Patient Profile Cloud Reader";
-        document.getElementById('gateway-subtitle').innerText = "Scan an initialized medical token card to sync cloud assets.";
-        passwordBlock.classList.add('hidden');
-        navigateTo(viewGateway);
+        currentMode = 'READ';
+        document.getElementById('scanner-title').innerText = "Scan Patient Card";
+        document.getElementById('scanner-subtitle').innerText = "Hold the card against the reader to view records.";
+        showScreen('view-scanner');
     });
 
-    // --- HARDWARE INTERCEPTORS ---
+    document.getElementById('link-admin-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('admin-login-password').value = '';
+        showScreen('view-admin-login');
+    });
+
+    document.getElementById('action-cancel-login').addEventListener('click', () => showScreen('view-homepage'));
+
+    document.getElementById('action-login').addEventListener('click', () => {
+        const enteredPassword = document.getElementById('admin-login-password').value;
+        
+        // Check password against the database (default is admin123)
+        db.ref('system/admin_password').once('value').then((snapshot) => {
+            let actualPassword = snapshot.val() || 'admin123';
+            
+            if (enteredPassword === actualPassword) {
+                isAdminLoggedIn = true;
+                loadAdminDashboard();
+            } else {
+                alert("Incorrect password. Please try again.");
+            }
+        });
+    });
+
+    // --- 2. ADMIN DASHBOARD FLOW ---
+    function loadAdminDashboard() {
+        const directory = document.getElementById('patient-directory');
+        directory.innerHTML = '<p style="text-align:center; padding: 20px;">Loading records...</p>';
+        
+        db.ref('patients').once('value').then((snapshot) => {
+            directory.innerHTML = '';
+            let hasPatients = false;
+            
+            snapshot.forEach((child) => {
+                hasPatients = true;
+                const cardID = child.key;
+                const patientData = child.val();
+                
+                const item = document.createElement('div');
+                item.className = 'feed-row';
+                item.innerHTML = `<span>📂 <strong>${patientData.title}</strong></span> <span class="clinical-badge">${cardID}</span>`;
+                
+                // Clicking a patient in the dashboard lets you view/edit them
+                item.addEventListener('click', () => {
+                    activeCardID = cardID;
+                    openPatientRecord(patientData, true);
+                });
+                
+                directory.appendChild(item);
+            });
+
+            if (!hasPatients) {
+                directory.innerHTML = '<p style="text-align:center; color: var(--med-text-muted); padding: 25px; font-size:13px;">No patients found in the database.</p>';
+            }
+            showScreen('view-admin-dashboard');
+        });
+    }
+
+    document.getElementById('action-logout').addEventListener('click', () => {
+        isAdminLoggedIn = false;
+        showScreen('view-homepage');
+    });
+
+    document.getElementById('action-go-register').addEventListener('click', () => {
+        currentMode = 'CREATE';
+        document.getElementById('scanner-title').innerText = "Register New Card";
+        document.getElementById('scanner-subtitle').innerText = "Scan a blank card to assign it to a new patient.";
+        showScreen('view-scanner');
+    });
+
+    // --- 3. SCANNER LOGIC (Laptop USB & Phone NFC) ---
+    const desktopInput = document.getElementById('desktop-hidden-input');
+    
     desktopInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const extractedUID = desktopInput.value.trim();
-            if (extractedUID) evaluateRoutingState(extractedUID);
+            const scannedID = desktopInput.value.trim();
+            if (scannedID) processScannedCard(scannedID);
         }
     });
 
-    mobileBtn.addEventListener('click', async () => {
+    document.getElementById('mobile-scan-trigger').addEventListener('click', async () => {
+        const scanStatus = document.getElementById('scan-status');
         if (!('NDEFReader' in window)) {
-            updateStatus("❌ Hardware Error: Sensor suite absent on this client.", '#e11d48');
+            scanStatus.innerText = "❌ Phone Error: NFC scanner not found on this device.";
+            scanStatus.style.color = 'red';
             return;
         }
         try {
             const ndef = new NDEFReader();
-            updateStatus("🔄 Mobile receptor ready. Approach proximity zone...", "#0284c7");
+            scanStatus.innerText = "🔄 Phone scanner ready. Tap your card against the back of your phone.";
+            scanStatus.style.color = '#0284c7';
             await ndef.scan();
             ndef.addEventListener("reading", ({ serialNumber }) => {
-                evaluateRoutingState(serialNumber);
+                processScannedCard(serialNumber);
             });
         } catch (error) {
-            updateStatus(`Peripheral Failure: ${error.message}`, '#e11d48');
+            scanStatus.innerText = `Scanner Error: ${error.message}`;
+            scanStatus.style.color = 'red';
         }
     });
 
-    // --- CLOUD-INTEGRATED ASSET ROUTER ---
-    function evaluateRoutingState(cardUID) {
-        activeCardUID = cardUID;
+    document.getElementById('action-cancel-scan').addEventListener('click', () => {
+        if (currentMode === 'CREATE') loadAdminDashboard();
+        else showScreen('view-homepage');
+    });
+
+    function processScannedCard(cardID) {
+        activeCardID = cardID;
         
-        // Fetch Admin Authentication string from Cloud
-        db.ref('system/admin_password').once('value').then((snapshot) => {
-            let activeSystemPass = snapshot.val() || fallbackPassword;
-            isAdminAuthenticated = (appCurrentMode === 'CREATE' && passwordInput.value === activeSystemPass);
-
-            if (appCurrentMode === 'CREATE') {
-                if (!isAdminAuthenticated) {
-                    updateStatus("🔒 Protocol Violation: Invalid Key Authorization.", '#e11d48');
-                    desktopInput.value = ''; desktopInput.focus();
-                    return;
-                }
-                loadSupportDashboard();
-                return;
-            }
-
-            if (appCurrentMode === 'READ') {
-                db.ref('patients/' + activeCardUID).once('value').then((patSnap) => {
-                    if (patSnap.exists()) {
-                        loadLiveWebpage(patSnap.val(), false);
-                    } else {
-                        updateStatus("❌ Peripheral Alert: Profile address unregistered in database cloud.", '#e11d48');
-                        desktopInput.value = ''; desktopInput.focus();
-                    }
-                });
-            }
-        });
-    }
-
-    // --- CLOUD VIEW RENDERING MATRICES ---
-    function loadLiveWebpage(pageData, showAdminTools) {
-        document.getElementById('live-page-title').innerText = pageData.title;
-        document.getElementById('live-page-content').innerText = pageData.content;
-        document.getElementById('target-live-uid').innerText = activeCardUID;
-        
-        if (showAdminTools || isAdminAuthenticated) editBtn.classList.remove('hidden');
-        else editBtn.classList.add('hidden');
-        
-        navigateTo(viewLivePage);
-    }
-
-    function loadCreationForm(isEditMode) {
-        if (isEditMode) {
-            db.ref('patients/' + activeCardUID).once('value').then((snap) => {
-                const pageData = snap.val();
-                formViewTitle.innerText = "Modify Cloud Record Chart";
-                formTitle.value = pageData.title;
-                formContent.value = pageData.content;
-                navigateTo(viewCreationPage);
-            });
-        } else {
-            formViewTitle.innerText = "Initialize Registry File";
-            formTitle.value = '';
-            formContent.value = '';
-            navigateTo(viewCreationPage);
-        }
-        document.getElementById('target-new-uid').innerText = activeCardUID;
-    }
-
-    function loadSupportDashboard() {
-        directoryContainer.innerHTML = '';
-        
-        db.ref('patients').once('value').then((snapshot) => {
-            let foundRecords = false;
+        if (currentMode === 'CREATE') {
+            // Admin is creating a new patient
+            document.getElementById('display-card-uid').innerText = activeCardID;
+            document.getElementById('input-patient-name').value = '';
+            document.getElementById('input-patient-notes').value = '';
+            showScreen('view-patient-form');
             
-            snapshot.forEach((childSnapshot) => {
-                foundRecords = true;
-                const realUID = childSnapshot.key;
-                const data = childSnapshot.val();
-                
-                const item = document.createElement('div');
-                item.className = 'feed-row';
-                item.innerHTML = `<span>📂 <strong>${data.title}</strong></span> <span class="clinical-badge">${realUID}</span>`;
-                
-                item.addEventListener('click', () => {
-                    activeCardUID = realUID;
-                    loadLiveWebpage(data, true);
-                });
-                directoryContainer.appendChild(item);
-            });
-
-            if (!foundRecords) {
-                directoryContainer.innerHTML = '<p style="text-align:center; color: var(--med-text-muted); padding: 25px; font-size:13px;">No active index items found in cloud database.</p>';
-            }
-
-            // Check if scanned target card is completely blank on cloud
-            db.ref('patients/' + activeCardUID).once('value').then((checkSnap) => {
-                if(activeCardUID && !checkSnap.exists()) {
-                    const createNotice = document.createElement('div');
-                    createNotice.style.padding = "10px 15px";
-                    createNotice.innerHTML = `<button class="btn-teal" id="action-direct-create">➕ Create Cloud File for Card: ${activeCardUID}</button>`;
-                    directoryContainer.prepend(createNotice);
-                    
-                    document.getElementById('action-direct-create').addEventListener('click', () => {
-                        loadCreationForm(false);
-                    });
+        } else if (currentMode === 'READ') {
+            // Doctor/Nurse is reading a card
+            db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    openPatientRecord(snapshot.val(), isAdminLoggedIn);
+                } else {
+                    document.getElementById('scan-status').innerText = "❌ This card is not registered yet.";
+                    document.getElementById('scan-status').style.color = 'red';
+                    desktopInput.value = ''; desktopInput.focus();
                 }
             });
-
-            navigateTo(viewSupportPanel);
-        });
+        }
     }
 
-    // --- PERSISTENCE DATABASE EXECUTION HANDLERS ---
-    document.getElementById('action-submit-pw-change').addEventListener('click', () => {
+    // --- 4. VIEW & EDIT PATIENTS ---
+    function openPatientRecord(data, showEditButton) {
+        document.getElementById('record-name').innerText = data.title;
+        document.getElementById('record-notes').innerText = data.content;
+        document.getElementById('record-uid').innerText = activeCardID;
+        
+        if (showEditButton) {
+            document.getElementById('action-edit-record').classList.remove('hidden');
+        } else {
+            document.getElementById('action-edit-record').classList.add('hidden');
+        }
+        
+        showScreen('view-patient-record');
+    }
+
+    document.getElementById('action-close-record').addEventListener('click', () => {
+        if (isAdminLoggedIn) loadAdminDashboard();
+        else showScreen('view-homepage');
+    });
+
+    document.getElementById('action-edit-record').addEventListener('click', () => {
+        document.getElementById('display-card-uid').innerText = activeCardID;
+        document.getElementById('input-patient-name').value = document.getElementById('record-name').innerText;
+        document.getElementById('input-patient-notes').value = document.getElementById('record-notes').innerText;
+        showScreen('view-patient-form');
+    });
+
+    document.getElementById('action-save-patient').addEventListener('click', () => {
+        const name = document.getElementById('input-patient-name').value.trim();
+        const notes = document.getElementById('input-patient-notes').value.trim();
+
+        if (!name || !notes) {
+            alert("Please fill out both the Name and Notes fields.");
+            return;
+        }
+
+        db.ref('patients/' + activeCardID).set({
+            title: name,
+            content: notes
+        }).then(() => {
+            loadAdminDashboard();
+        });
+    });
+
+    document.getElementById('action-cancel-form').addEventListener('click', () => {
+        loadAdminDashboard();
+    });
+
+    // --- 5. PASSWORD MANAGEMENT ---
+    document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
+        document.getElementById('pw-current').value = '';
+        document.getElementById('pw-new').value = '';
+        showScreen('view-change-password');
+    });
+
+    document.getElementById('action-cancel-password').addEventListener('click', () => loadAdminDashboard());
+
+    document.getElementById('action-save-password').addEventListener('click', () => {
         const currentInput = document.getElementById('pw-current').value;
         const newInput = document.getElementById('pw-new').value.trim();
 
         db.ref('system/admin_password').once('value').then((snapshot) => {
-            let storedPassword = snapshot.val() || fallbackPassword;
-            if (currentInput !== storedPassword) {
-                alert("Verification Failed: System Key mismatch.");
+            let actualPassword = snapshot.val() || 'admin123';
+            if (currentInput !== actualPassword) {
+                alert("Incorrect current password.");
                 return;
             }
             if (!newInput) {
-                alert("Validation string required.");
+                alert("Please enter a new password.");
                 return;
             }
 
             db.ref('system/admin_password').set(newInput).then(() => {
-                alert("Cloud Security Authentication Key altered cleanly.");
-                loadSupportDashboard();
+                alert("Password changed successfully.");
+                loadAdminDashboard();
             });
         });
     });
 
-    document.getElementById('action-save').addEventListener('click', () => {
-        const titleText = formTitle.value.trim();
-        const contentText = formContent.value.trim();
-
-        if (!titleText || !contentText) {
-            alert("Validation failure: All fields require data blocks.");
-            return;
-        }
-
-        db.ref('patients/' + activeCardUID).set({
-            title: titleText,
-            content: contentText
-        }).then(() => {
-            loadSupportDashboard();
-        });
-    });
-
-    // --- DECOUPLED CONTROL ROUTINGS ---
-    editBtn.addEventListener('click', () => loadCreationForm(true));
-    document.getElementById('action-go-to-change-pw').addEventListener('click', () => navigateTo(viewChangePassword));
-    document.getElementById('action-cancel-pw-change').addEventListener('click', loadSupportDashboard);
-    document.getElementById('action-exit-support').addEventListener('click', () => { appCurrentMode = null; navigateTo(viewHomepage); });
-    document.getElementById('action-exit-gateway').addEventListener('click', () => { appCurrentMode = null; navigateTo(viewHomepage); });
-    document.getElementById('action-exit-page').addEventListener('click', () => {
-        if (isAdminAuthenticated) loadSupportDashboard();
-        else { appCurrentMode = null; navigateTo(viewHomepage); }
-    });
-    document.getElementById('action-cancel-creation').addEventListener('click', () => {
-        db.ref('patients/' + activeCardUID).once('value').then((snap) => {
-            if (snap.exists()) {
-                loadLiveWebpage(snap.val(), isAdminAuthenticated);
-            } else {
-                loadSupportDashboard();
-            }
-        });
-    });
-
-    function updateStatus(text, color) {
-        scanStatus.innerText = text;
-        scanStatus.style.borderColor = color;
-        scanStatus.style.color = color;
-    }
 </script>
 </body>
 </html>
