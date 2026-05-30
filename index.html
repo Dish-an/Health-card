@@ -63,7 +63,7 @@
         .admin-link-wrapper a:hover { color: var(--med-blue); text-decoration: underline; }
 
         label { display: block; text-align: left; margin-top: 16px; font-weight: 600; font-size: 13px; color: var(--med-navy); text-transform: uppercase; }
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"], textarea, input[type="file"] {
             width: 100%; padding: 12px; margin: 6px 0 12px 0;
             border: 1px solid var(--med-border); border-radius: 6px; box-sizing: border-box; font-size: 15px;
             background-color: #f8fafc; color: var(--med-text-main);
@@ -96,6 +96,7 @@
         .vitals-grid { display: flex; gap: 12px; background: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; justify-content: space-between; }
         .form-row-three { display: flex; gap: 10px; }
         .form-row-three > div { flex: 1; }
+        #file-status-msg { font-size: 13px; color: var(--med-teal); margin-top: -4px; margin-bottom: 10px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -181,17 +182,16 @@
         <label for="input-patient-diagnosis">Checkup Diagnosis</label>
         <input type="text" id="input-patient-diagnosis" placeholder="e.g., Acute Bronchitis, Seasonal Flu">
 
-        <label for="input-patient-test-title">Test Document Description / Title</label>
-        <input type="text" id="input-patient-test-title" placeholder="e.g., Full Blood Count Report - Lab A">
-        
-        <label for="input-patient-test-link">Test Document Web Link (URL)</label>
-        <input type="text" id="input-patient-test-link" placeholder="e.g., https://example.com/report.pdf">
+        <label for="input-patient-file">Upload Diagnosis Photo / Document</label>
+        <input type="file" id="input-patient-file" accept="image/*,application/pdf">
+        <div id="file-status-msg"></div>
+        <button id="action-remove-file" class="btn-warning hidden" type="button" style="padding: 8px; font-size: 12px; width: auto; margin-top:0; margin-bottom:15px;">❌ Delete Attached Document</button>
         
         <label for="input-patient-notes">Medical Records / General Notes</label>
         <textarea id="input-patient-notes" rows="4" placeholder="Type clinical history, allergies, or treatment updates here..."></textarea>
         
         <button id="action-save-patient" class="btn-teal">Save to Database</button>
-        <button id="action-delete-patient" class="btn-danger hidden">🗑️ Delete Patient Record</button>
+        <button id="action-delete-patient" class="btn-danger hidden">🗑| Remove Entire Patient ID</button>
         <button id="action-cancel-form" class="btn-secondary">Cancel</button>
     </div>
 
@@ -211,8 +211,8 @@
         </div>
 
         <div id="record-document-area" class="document-box hidden">
-            <strong>📁 Attached Lab Record:</strong> <span id="record-test-title"></span><br>
-            <a id="record-test-link" href="#" target="_blank" style="color: #15803d; font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">Click here to view document</a>
+            <strong>📁 Attached Lab Record / Photo:</strong> <span id="record-test-title"></span><br>
+            <a id="record-test-link" href="#" target="_blank" download="medical-document" style="color: #15803d; font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">Click here to open/download file</a>
         </div>
 
         <div style="font-weight: 600; font-size: 14px; color: var(--med-navy); margin-bottom: 6px;">Clinical Notes:</div>
@@ -238,7 +238,7 @@
 <script>
     // Global Crash Safety Handler
     window.onerror = function(msg, url, line) {
-        alert("🚨 JavaScript Setup Error Detected:\n\n" + msg + "\n\nLine number: " + line + "\n\nTip: If it says 'firebase is not defined', your network or adblocker is stopping the database scripts from loading!");
+        alert("🚨 JavaScript Setup Error Detected:\n\n" + msg + "\n\nLine number: " + line);
         return false;
     };
 
@@ -257,7 +257,7 @@
     if (typeof firebase !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
     } else {
-        alert("❌ Error: Firebase scripts could not load. Please check your internet connection or disable aggressive extensions/adblockers.");
+        alert("❌ Error: Firebase scripts could not load.");
     }
     const db = firebase.database();
 
@@ -265,6 +265,10 @@
     let currentMode = null; 
     let activeCardID = null;
     let isAdminLoggedIn = false;
+    
+    // File upload temp storage variables
+    let base64FileString = "";
+    let uploadedFileName = "";
 
     // View Navigation Function
     function showScreen(screenId) {
@@ -408,10 +412,13 @@
             document.getElementById('input-patient-sex').value = '';
             document.getElementById('input-patient-blood').value = '';
             document.getElementById('input-patient-diagnosis').value = '';
-            document.getElementById('input-patient-test-title').value = '';
-            document.getElementById('input-patient-test-link').value = '';
+            document.getElementById('input-patient-file').value = '';
+            document.getElementById('file-status-msg').innerText = '';
+            document.getElementById('action-remove-file').classList.add('hidden');
             document.getElementById('input-patient-notes').value = '';
             document.getElementById('action-delete-patient').classList.add('hidden'); 
+            base64FileString = "";
+            uploadedFileName = "";
             showScreen('view-patient-form');
             
         } else if (currentMode === 'READ') {
@@ -427,6 +434,44 @@
         }
     }
 
+    // --- FILE CONVERSION ENGINE (Base64) ---
+    document.getElementById('input-patient-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const statusMsg = document.getElementById('file-status-msg');
+        const removeBtn = document.getElementById('action-remove-file');
+        
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB Limit Guard
+                alert("File is too large! Please choose an image or document smaller than 2MB.");
+                this.value = "";
+                statusMsg.innerText = "";
+                return;
+            }
+            
+            const reader = new FileReader();
+            statusMsg.innerText = "Processing file... Please wait.";
+            
+            reader.onload = function(event) {
+                base64FileString = event.target.result;
+                uploadedFileName = file.name;
+                statusMsg.innerText = "📄 Ready: " + file.name;
+                statusMsg.style.color = "var(--med-teal)";
+                removeBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Option to Clear/Remove document within Form
+    document.getElementById('action-remove-file').addEventListener('click', function() {
+        base64FileString = "";
+        uploadedFileName = "";
+        document.getElementById('input-patient-file').value = "";
+        document.getElementById('file-status-msg').innerText = "Document cleared. Save changes to update database.";
+        document.getElementById('file-status-msg').style.color = "var(--med-danger)";
+        this.classList.add('hidden');
+    });
+
     // --- 4. VIEW & EDIT PATIENTS ---
     function openPatientRecord(data, showEditButton) {
         document.getElementById('record-name').innerText = data.title || 'Unknown';
@@ -438,9 +483,9 @@
         document.getElementById('record-uid').innerText = activeCardID;
         
         const docArea = document.getElementById('record-document-area');
-        if (data.testLink && data.testLink.trim() !== '') {
-            document.getElementById('record-test-title').innerText = data.testTitle || 'Untitled Lab Document';
-            document.getElementById('record-test-link').href = data.testLink.trim();
+        if (data.attachedFile && data.attachedFile.trim() !== '') {
+            document.getElementById('record-test-title').innerText = data.attachedFileName || 'Checkup Document';
+            document.getElementById('record-test-link').href = data.attachedFile;
             docArea.classList.remove('hidden');
         } else {
             docArea.classList.add('hidden');
@@ -471,9 +516,22 @@
             document.getElementById('input-patient-sex').value = data.sex || '';
             document.getElementById('input-patient-blood').value = data.bloodType || '';
             document.getElementById('input-patient-diagnosis').value = data.diagnosis === 'No checkup diagnosis recorded yet.' ? '' : (data.diagnosis || '');
-            document.getElementById('input-patient-test-title').value = data.testTitle || '';
-            document.getElementById('input-patient-test-link').value = data.testLink || '';
             document.getElementById('input-patient-notes').value = data.content || '';
+            
+            // Reload file data if it exists
+            document.getElementById('input-patient-file').value = "";
+            if (data.attachedFile) {
+                base64FileString = data.attachedFile;
+                uploadedFileName = data.attachedFileName || "Attached Document";
+                document.getElementById('file-status-msg').innerText = "📂 Current Database Document: " + uploadedFileName;
+                document.getElementById('file-status-msg').style.color = "var(--med-blue)";
+                document.getElementById('action-remove-file').classList.remove('hidden');
+            } else {
+                base64FileString = "";
+                uploadedFileName = "";
+                document.getElementById('file-status-msg').innerText = "";
+                document.getElementById('action-remove-file').classList.add('hidden');
+            }
             
             document.getElementById('action-delete-patient').classList.remove('hidden'); 
             showScreen('view-patient-form');
@@ -486,8 +544,6 @@
         const sex = document.getElementById('input-patient-sex').value.trim();
         const bloodType = document.getElementById('input-patient-blood').value.trim();
         const diagnosis = document.getElementById('input-patient-diagnosis').value.trim();
-        const testTitle = document.getElementById('input-patient-test-title').value.trim();
-        const testLink = document.getElementById('input-patient-test-link').value.trim();
         const notes = document.getElementById('input-patient-notes').value.trim();
 
         if (!name || !notes) {
@@ -501,8 +557,8 @@
             sex: sex || 'N/A',
             bloodType: bloodType || 'N/A',
             diagnosis: diagnosis || 'N/A',
-            testTitle: testTitle || 'Attached Report',
-            testLink: testLink || '',
+            attachedFile: base64FileString,
+            attachedFileName: uploadedFileName,
             content: notes
         }).then(() => {
             loadAdminDashboard();
