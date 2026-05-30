@@ -99,7 +99,6 @@
         .form-row-three > div { flex: 1; }
         #file-status-msg, #quick-file-status { font-size: 13px; color: var(--med-teal); margin-top: -4px; margin-bottom: 10px; font-weight: 600; }
 
-        /* Timeline Presentation Elements */
         .timeline-card { background: #ffffff; border: 1px solid var(--med-border); border-left: 4px solid var(--med-blue); padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
         .timeline-meta { font-size: 12px; color: var(--med-text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; font-weight: 500; }
         .quick-consult-panel { background: #f8fafc; border: 1px dashed var(--med-blue); padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid var(--med-teal); }
@@ -267,7 +266,6 @@
 
 <script>
     // Global Multi-Doctor Verification Registry System
-    // Map your custom passwords to the distinct names of each physician here:
     const DOCTOR_REGISTRY = {
         "doc101": "Dr. Sarah Jenkins (Cardiology)",
         "doc202": "Dr. James Carter (Pediatrics)",
@@ -292,13 +290,18 @@
         appId: "1:912366477405:web:e7ade3d21de3d77639edb4"
     };
 
-    // Initialize Database
-    if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-    } else {
-        alert("❌ Error: Firebase scripts could not load.");
+    // Safe Database Isolation Core (Prevents screen freezing if CDN scripts load late)
+    let db;
+    try {
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } else {
+            alert("❌ Network Error: Firebase script failed to load from CDN. Ensure you have an active internet connection.");
+        }
+    } catch(err) {
+        console.error("Firebase Initialization Failure: ", err);
     }
-    const db = firebase.database();
 
     // App State Variables
     let currentMode = null; 
@@ -346,6 +349,7 @@
     document.getElementById('action-cancel-login').addEventListener('click', () => showScreen('view-homepage'));
 
     document.getElementById('action-login').addEventListener('click', () => {
+        if (!db) { alert("Database connection unavailable."); return; }
         const enteredPassword = document.getElementById('admin-login-password').value;
         
         db.ref('system/admin_password').once('value').then((snapshot) => {
@@ -361,6 +365,7 @@
 
     // --- 2. ADMIN DASHBOARD FLOW ---
     function loadAdminDashboard() {
+        if (!db) { alert("Database connection offline."); return; }
         const directory = document.getElementById('patient-directory');
         directory.innerHTML = '<p style="text-align:center; padding: 20px;">Loading records...</p>';
         
@@ -408,13 +413,15 @@
     // --- 3. SCANNER LOGIC ---
     const desktopInput = document.getElementById('desktop-hidden-input');
     
-    desktopInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const scannedID = desktopInput.value.trim();
-            if (scannedID) processScannedCard(scannedID);
-        }
-    });
+    if (desktopInput) {
+        desktopInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const scannedID = desktopInput.value.trim();
+                if (scannedID) processScannedCard(scannedID);
+            }
+        });
+    }
 
     document.getElementById('mobile-scan-trigger').addEventListener('click', async () => {
         const scanStatus = document.getElementById('scan-status');
@@ -443,6 +450,7 @@
     });
 
     function processScannedCard(cardID) {
+        if (!db) { alert("Database connection failure."); return; }
         activeCardID = cardID;
         
         if (currentMode === 'CREATE') {
@@ -469,11 +477,269 @@
                 } else {
                     document.getElementById('scan-status').innerText = "❌ This card is not registered yet.";
                     document.getElementById('scan-status').style.color = 'red';
-                    desktopInput.value = ''; desktopInput.focus();
+                    if(desktopInput) { desktopInput.value = ''; desktopInput.focus(); }
                 }
             });
         }
     }
 
     // --- BASE64 MULTI-CONVERSION FILE ENGINE ---
-    document
+    document.getElementById('input-patient-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const statusMsg = document.getElementById('file-status-msg');
+        const removeBtn = document.getElementById('action-remove-file');
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { 
+                alert("File too large! Must be under 2MB.");
+                this.value = ""; statusMsg.innerText = ""; return;
+            }
+            const reader = new FileReader();
+            statusMsg.innerText = "Processing file... Please wait.";
+            reader.onload = function(event) {
+                base64FileString = event.target.result;
+                uploadedFileName = file.name;
+                statusMsg.innerText = "📄 Ready: " + file.name;
+                statusMsg.style.color = "var(--med-teal)";
+                removeBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('quick-input-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const statusMsg = document.getElementById('quick-file-status');
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { 
+                alert("File too large! Must be under 2MB.");
+                this.value = ""; statusMsg.innerText = ""; return;
+            }
+            const reader = new FileReader();
+            statusMsg.innerText = "Encoding attachment components...";
+            reader.onload = function(event) {
+                quickBase64FileString = event.target.result;
+                quickUploadedFileName = file.name;
+                statusMsg.innerText = "📄 Document linked: " + file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('action-remove-file').addEventListener('click', function() {
+        base64FileString = ""; uploadedFileName = "";
+        document.getElementById('input-patient-file').value = "";
+        document.getElementById('file-status-msg').innerText = "Document cleared.";
+        this.classList.add('hidden');
+    });
+
+    // --- 4. VIEW, EDIT, & APPEND VISITS ---
+    function openPatientRecord(data, showEditButton) {
+        document.getElementById('record-name').innerText = data.title || 'Unknown';
+        document.getElementById('record-age').innerText = data.age || 'N/A';
+        document.getElementById('record-sex').innerText = data.sex || 'N/A';
+        document.getElementById('record-blood').innerText = data.bloodType || 'N/A';
+        document.getElementById('record-diagnosis').innerText = data.diagnosis || 'No checkup diagnosis recorded yet.';
+        document.getElementById('record-notes').innerText = data.content || '';
+        document.getElementById('record-uid').innerText = activeCardID;
+        
+        const docBox = document.getElementById('record-doctor-area');
+        if (data.lastVisitedDoctor) {
+            document.getElementById('record-last-doctor').innerText = data.lastVisitedDoctor;
+            docBox.classList.remove('hidden');
+        } else {
+            docBox.classList.add('hidden');
+        }
+
+        const docArea = document.getElementById('record-document-area');
+        if (data.attachedFile && data.attachedFile.trim() !== '') {
+            document.getElementById('record-test-title').innerText = data.attachedFileName || 'Checkup Document';
+            document.getElementById('record-test-link').href = data.attachedFile;
+            docArea.classList.remove('hidden');
+        } else {
+            docArea.classList.add('hidden');
+        }
+
+        const timeline = document.getElementById('visit-history-timeline');
+        timeline.innerHTML = '';
+        if (data.visits) {
+            Object.keys(data.visits).reverse().forEach((key) => {
+                const visit = data.visits[key];
+                const block = document.createElement('div');
+                block.className = 'timeline-card';
+                
+                let appendFileHTML = '';
+                if (visit.file && visit.file.trim() !== '') {
+                    appendFileHTML = `<br><a href="${visit.file}" target="_blank" download="consultation-doc" style="color: var(--med-teal); font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">📁 Open Visit Attachment: ${visit.fileName}</a>`;
+                }
+
+                block.innerHTML = `
+                    <div class="timeline-meta">
+                        <span>👨‍⚕️ ${visit.doctor}</span>
+                        <span>📅 ${visit.timestamp}</span>
+                    </div>
+                    <div style="color: var(--med-text-main); line-height: 1.5; white-space: pre-wrap;">${visit.diagnosis}</div>
+                    ${appendFileHTML}
+                `;
+                timeline.appendChild(block);
+            });
+        } else {
+            timeline.innerHTML = '<p style="font-size:13px; color:var(--med-text-muted); font-style: italic; margin:0;">No previous history records logged for this card.</p>';
+        }
+
+        if (showEditButton) {
+            document.getElementById('action-edit-record').classList.remove('hidden');
+        } else {
+            document.getElementById('action-edit-record').classList.add('hidden');
+        }
+        
+        document.getElementById('quick-input-diagnosis').value = '';
+        document.getElementById('quick-input-file').value = '';
+        document.getElementById('quick-file-status').innerText = '';
+        document.getElementById('quick-doctor-password').value = '';
+        quickBase64FileString = ""; quickUploadedFileName = "";
+
+        showScreen('view-patient-record');
+    }
+
+    document.getElementById('action-save-quick-visit').addEventListener('click', () => {
+        if (!db) { alert("Database offline."); return; }
+        const quickDiag = document.getElementById('quick-input-diagnosis').value.trim();
+        const docPass = document.getElementById('quick-doctor-password').value.trim();
+
+        if (!quickDiag) { alert("Please input the diagnosis report fields."); return; }
+        if (!docPass) { alert("Authorization Key Required."); return; }
+
+        if (!DOCTOR_REGISTRY[docPass]) {
+            alert("Access Denied: Invalid doctor password validation signature.");
+            return;
+        }
+
+        const authenticatedDoctor = DOCTOR_REGISTRY[docPass];
+        const localizedTimestamp = new Date().toLocaleString();
+
+        const appendPayload = {
+            doctor: authenticatedDoctor,
+            timestamp: localizedTimestamp,
+            diagnosis: quickDiag,
+            file: quickBase64FileString,
+            fileName: quickUploadedFileName
+        };
+
+        db.ref('patients/' + activeCardID).update({
+            lastVisitedDoctor: authenticatedDoctor,
+            diagnosis: quickDiag,
+            attachedFile: quickBase64FileString, 
+            attachedFileName: quickUploadedFileName
+        }).then(() => {
+            return db.ref('patients/' + activeCardID + '/visits').push(appendPayload);
+        }).then(() => {
+            alert("Visit report safely archived under signature of " + authenticatedDoctor);
+            return db.ref('patients/' + activeCardID).once('value');
+        }).then((snapshot) => {
+            openPatientRecord(snapshot.val() || {}, isAdminLoggedIn);
+        });
+    });
+
+    document.getElementById('action-close-record').addEventListener('click', () => {
+        if (isAdminLoggedIn) loadAdminDashboard();
+        else showScreen('view-homepage');
+    });
+
+    document.getElementById('action-edit-record').addEventListener('click', () => {
+        if (!db) { alert("Database error."); return; }
+        db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('form-title-text').innerText = "Edit Patient Details";
+            document.getElementById('display-card-uid').innerText = activeCardID;
+            
+            document.getElementById('input-patient-name').value = data.title || '';
+            document.getElementById('input-patient-age').value = data.age || '';
+            document.getElementById('input-patient-sex').value = data.sex || '';
+            document.getElementById('input-patient-blood').value = data.bloodType || '';
+            document.getElementById('input-patient-diagnosis').value = data.diagnosis === 'No checkup diagnosis recorded yet.' ? '' : (data.diagnosis || '');
+            document.getElementById('input-patient-notes').value = data.content || '';
+            
+            document.getElementById('input-patient-file').value = "";
+            if (data.attachedFile) {
+                base64FileString = data.attachedFile;
+                uploadedFileName = data.attachedFileName || "Attached Document";
+                document.getElementById('file-status-msg').innerText = "📂 Cloud File: " + uploadedFileName;
+                document.getElementById('action-remove-file').classList.remove('hidden');
+            } else {
+                base64FileString = ""; uploadedFileName = "";
+                document.getElementById('file-status-msg').innerText = "";
+                document.getElementById('action-remove-file').classList.add('hidden');
+            }
+            
+            document.getElementById('action-delete-patient').classList.remove('hidden'); 
+            showScreen('view-patient-form');
+        });
+    });
+
+    document.getElementById('action-save-patient').addEventListener('click', () => {
+        if (!db) { alert("Database error."); return; }
+        const name = document.getElementById('input-patient-name').value.trim();
+        const age = document.getElementById('input-patient-age').value.trim();
+        const sex = document.getElementById('input-patient-sex').value.trim();
+        const bloodType = document.getElementById('input-patient-blood').value.trim();
+        const diagnosis = document.getElementById('input-patient-diagnosis').value.trim();
+        const notes = document.getElementById('input-patient-notes').value.trim();
+
+        if (!name || !notes) { alert("Please fill out Name and Notes fields."); return; }
+
+        const updateData = {
+            title: name,
+            age: age || 'N/A',
+            sex: sex || 'N/A',
+            bloodType: bloodType || 'N/A',
+            diagnosis: diagnosis || 'N/A',
+            attachedFile: base64FileString,
+            attachedFileName: uploadedFileName,
+            content: notes
+        };
+
+        db.ref('patients/' + activeCardID).update(updateData).then(() => {
+            loadAdminDashboard();
+        });
+    });
+
+    document.getElementById('action-delete-patient').addEventListener('click', () => {
+        if (!db) { alert("Database error."); return; }
+        const confirmation = confirm("Completely erase patient card data?");
+        if (confirmation) {
+            db.ref('patients/' + activeCardID).remove().then(() => {
+                loadAdminDashboard();
+            });
+        }
+    });
+
+    document.getElementById('action-cancel-form').addEventListener('click', () => loadAdminDashboard());
+
+    // --- 5. ADMIN PASSWORD MANAGEMENT ---
+    document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
+        document.getElementById('pw-current').value = '';
+        document.getElementById('pw-new').value = '';
+        showScreen('view-change-password');
+    });
+
+    document.getElementById('action-cancel-password').addEventListener('click', () => loadAdminDashboard());
+
+    document.getElementById('action-save-password').addEventListener('click', () => {
+        if (!db) { alert("Database offline."); return; }
+        const currentInput = document.getElementById('pw-current').value;
+        const newInput = document.getElementById('pw-new').value.trim();
+
+        db.ref('system/admin_password').once('value').then((snapshot) => {
+            let actualPassword = snapshot.val() || 'admin123';
+            if (currentInput !== actualPassword) { alert("Incorrect current password."); return; }
+            if (!newInput) { alert("Please enter a valid password."); return; }
+
+            db.ref('system/admin_password').set(newInput).then(() => {
+                alert("Password updated.");
+                loadAdminDashboard();
+            });
+        });
+    });
+</script>
+</body>
+</html>
