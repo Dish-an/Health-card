@@ -93,7 +93,6 @@
         .diagnosis-box { background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #c2410c; }
         .document-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #166534; }
         
-        /* Grid Layout for Core Demographics */
         .vitals-grid { display: flex; gap: 12px; background: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; justify-content: space-between; }
         .form-row-three { display: flex; gap: 10px; }
         .form-row-three > div { flex: 1; }
@@ -237,6 +236,12 @@
 </div>
 
 <script>
+    // Global Crash Safety Handler
+    window.onerror = function(msg, url, line) {
+        alert("🚨 JavaScript Setup Error Detected:\n\n" + msg + "\n\nLine number: " + line + "\n\nTip: If it says 'firebase is not defined', your network or adblocker is stopping the database scripts from loading!");
+        return false;
+    };
+
     // Live Firebase Config Keys
     const firebaseConfig = {
         apiKey: "AIzaSyDdUc_WDv8vkVV5LDuwwQpWaeDfw6Tso30",
@@ -249,7 +254,11 @@
     };
 
     // Initialize Database
-    firebase.initializeApp(firebaseConfig);
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+    } else {
+        alert("❌ Error: Firebase scripts could not load. Please check your internet connection or disable aggressive extensions/adblockers.");
+    }
     const db = firebase.database();
 
     // App State Variables
@@ -296,7 +305,6 @@
         
         db.ref('system/admin_password').once('value').then((snapshot) => {
             let actualPassword = snapshot.val() || 'admin123';
-            
             if (enteredPassword === actualPassword) {
                 isAdminLoggedIn = true;
                 loadAdminDashboard();
@@ -318,11 +326,11 @@
             snapshot.forEach((child) => {
                 hasPatients = true;
                 const cardID = child.key;
-                const patientData = child.val();
+                const patientData = child.val() || {};
                 
                 const item = document.createElement('div');
                 item.className = 'feed-row';
-                item.innerHTML = `<span>📂 <strong>${patientData.title}</strong></span> <span class="clinical-badge">${cardID}</span>`;
+                item.innerHTML = `<span>📂 <strong>${patientData.title || 'Unknown'}</strong></span> <span class="clinical-badge">${cardID}</span>`;
                 
                 item.addEventListener('click', () => {
                     activeCardID = cardID;
@@ -348,7 +356,7 @@
         currentMode = 'CREATE';
         document.getElementById('scanner-title').innerText = "Register New Card";
         document.getElementById('scanner-subtitle').innerText = "Scan a blank card to assign it to a new patient.";
-        document.getElementById('action-delete-patient').classList.add('hidden'); // Hide delete for fresh cards
+        document.getElementById('action-delete-patient').classList.add('hidden'); 
         showScreen('view-scanner');
     });
 
@@ -405,3 +413,146 @@
             document.getElementById('input-patient-notes').value = '';
             document.getElementById('action-delete-patient').classList.add('hidden'); 
             showScreen('view-patient-form');
+            
+        } else if (currentMode === 'READ') {
+            db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    openPatientRecord(snapshot.val() || {}, isAdminLoggedIn);
+                } else {
+                    document.getElementById('scan-status').innerText = "❌ This card is not registered yet.";
+                    document.getElementById('scan-status').style.color = 'red';
+                    desktopInput.value = ''; desktopInput.focus();
+                }
+            });
+        }
+    }
+
+    // --- 4. VIEW & EDIT PATIENTS ---
+    function openPatientRecord(data, showEditButton) {
+        document.getElementById('record-name').innerText = data.title || 'Unknown';
+        document.getElementById('record-age').innerText = data.age || 'N/A';
+        document.getElementById('record-sex').innerText = data.sex || 'N/A';
+        document.getElementById('record-blood').innerText = data.bloodType || 'N/A';
+        document.getElementById('record-diagnosis').innerText = data.diagnosis || 'No checkup diagnosis recorded yet.';
+        document.getElementById('record-notes').innerText = data.content || '';
+        document.getElementById('record-uid').innerText = activeCardID;
+        
+        const docArea = document.getElementById('record-document-area');
+        if (data.testLink && data.testLink.trim() !== '') {
+            document.getElementById('record-test-title').innerText = data.testTitle || 'Untitled Lab Document';
+            document.getElementById('record-test-link').href = data.testLink.trim();
+            docArea.classList.remove('hidden');
+        } else {
+            docArea.classList.add('hidden');
+        }
+
+        if (showEditButton) {
+            document.getElementById('action-edit-record').classList.remove('hidden');
+        } else {
+            document.getElementById('action-edit-record').classList.add('hidden');
+        }
+        
+        showScreen('view-patient-record');
+    }
+
+    document.getElementById('action-close-record').addEventListener('click', () => {
+        if (isAdminLoggedIn) loadAdminDashboard();
+        else showScreen('view-homepage');
+    });
+
+    document.getElementById('action-edit-record').addEventListener('click', () => {
+        db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('form-title-text').innerText = "Edit Patient Details";
+            document.getElementById('display-card-uid').innerText = activeCardID;
+            
+            document.getElementById('input-patient-name').value = data.title || '';
+            document.getElementById('input-patient-age').value = data.age || '';
+            document.getElementById('input-patient-sex').value = data.sex || '';
+            document.getElementById('input-patient-blood').value = data.bloodType || '';
+            document.getElementById('input-patient-diagnosis').value = data.diagnosis === 'No checkup diagnosis recorded yet.' ? '' : (data.diagnosis || '');
+            document.getElementById('input-patient-test-title').value = data.testTitle || '';
+            document.getElementById('input-patient-test-link').value = data.testLink || '';
+            document.getElementById('input-patient-notes').value = data.content || '';
+            
+            document.getElementById('action-delete-patient').classList.remove('hidden'); 
+            showScreen('view-patient-form');
+        });
+    });
+
+    document.getElementById('action-save-patient').addEventListener('click', () => {
+        const name = document.getElementById('input-patient-name').value.trim();
+        const age = document.getElementById('input-patient-age').value.trim();
+        const sex = document.getElementById('input-patient-sex').value.trim();
+        const bloodType = document.getElementById('input-patient-blood').value.trim();
+        const diagnosis = document.getElementById('input-patient-diagnosis').value.trim();
+        const testTitle = document.getElementById('input-patient-test-title').value.trim();
+        const testLink = document.getElementById('input-patient-test-link').value.trim();
+        const notes = document.getElementById('input-patient-notes').value.trim();
+
+        if (!name || !notes) {
+            alert("Please fill out Name and Notes fields.");
+            return;
+        }
+
+        db.ref('patients/' + activeCardID).set({
+            title: name,
+            age: age || 'N/A',
+            sex: sex || 'N/A',
+            bloodType: bloodType || 'N/A',
+            diagnosis: diagnosis || 'N/A',
+            testTitle: testTitle || 'Attached Report',
+            testLink: testLink || '',
+            content: notes
+        }).then(() => {
+            loadAdminDashboard();
+        });
+    });
+
+    document.getElementById('action-delete-patient').addEventListener('click', () => {
+        const confirmation = confirm("Are you completely sure you want to remove this patient ID from the system? This will delete all their medical history forever.");
+        if (confirmation) {
+            db.ref('patients/' + activeCardID).remove().then(() => {
+                alert("Patient Card ID cleared successfully.");
+                loadAdminDashboard();
+            });
+        }
+    });
+
+    document.getElementById('action-cancel-form').addEventListener('click', () => {
+        loadAdminDashboard();
+    });
+
+    // --- 5. PASSWORD MANAGEMENT ---
+    document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
+        document.getElementById('pw-current').value = '';
+        document.getElementById('pw-new').value = '';
+        showScreen('view-change-password');
+    });
+
+    document.getElementById('action-cancel-password').addEventListener('click', () => loadAdminDashboard());
+
+    document.getElementById('action-save-password').addEventListener('click', () => {
+        const currentInput = document.getElementById('pw-current').value;
+        const newInput = document.getElementById('pw-new').value.trim();
+
+        db.ref('system/admin_password').once('value').then((snapshot) => {
+            let actualPassword = snapshot.val() || 'admin123';
+            if (currentInput !== actualPassword) {
+                alert("Incorrect current password.");
+                return;
+            }
+            if (!newInput) {
+                alert("Please enter a new password.");
+                return;
+            }
+
+            db.ref('system/admin_password').set(newInput).then(() => {
+                alert("Password changed successfully.");
+                loadAdminDashboard();
+            });
+        });
+    });
+</script>
+</body>
+</html>
