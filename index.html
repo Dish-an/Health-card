@@ -6,7 +6,7 @@
     <title>MedLink Patient Portal</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+   
     <style>
         :root {
             --med-navy: #1e293b;
@@ -52,34 +52,35 @@
         .med-menu-card:hover { border-color: var(--med-blue); background: #f0f9ff; transform: translateY(-2px); }
         .med-menu-card h3 { margin: 14px 0 6px 0; font-size: 18px; font-weight: 600; color: var(--med-navy); }
         .med-menu-card p { margin: 0; font-size: 13px; color: var(--med-text-muted); line-height: 1.4; }
-        .med-icon-circle { 
-            width: 56px; height: 56px; background: #f1f5f9; border-radius: 50%; 
+        .med-icon-circle {
+            width: 56px; height: 56px; background: #f1f5f9; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 24px;
         }
         .med-menu-card:hover .med-icon-circle { background: #e0f2fe; color: var(--med-blue); }
-        
+       
         .admin-link-wrapper { text-align: center; margin-top: 40px; }
         .admin-link-wrapper a { color: var(--med-text-muted); font-size: 13px; text-decoration: none; transition: color 0.15s ease; }
         .admin-link-wrapper a:hover { color: var(--med-blue); text-decoration: underline; }
 
         label { display: block; text-align: left; margin-top: 16px; font-weight: 600; font-size: 13px; color: var(--med-navy); text-transform: uppercase; }
-        input[type="text"], input[type="password"], textarea, input[type="file"] {
+        input[type="text"], input[type="password"], input[type="number"], select, textarea {
             width: 100%; padding: 12px; margin: 6px 0 12px 0;
             border: 1px solid var(--med-border); border-radius: 6px; box-sizing: border-box; font-size: 15px;
             background-color: #f8fafc; color: var(--med-text-main);
         }
-        input:focus, textarea:focus { outline: none; border-color: var(--med-blue); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
-        button {
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--med-blue); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+       
+        .btn {
             color: white; border: none; padding: 14px 28px; font-size: 15px;
             border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;
-            margin-top: 12px; transition: background 0.15s ease;
+            margin-top: 12px; transition: background 0.15s ease; display: inline-block; text-align: center; box-sizing: border-box;
         }
-        .btn-blue { background-color: var(--med-blue); }
-        .btn-teal { background-color: var(--med-teal); }
-        .btn-warning { background-color: #d97706; }
-        .btn-danger { background-color: var(--med-danger); }
+        .btn-primary { background-color: var(--med-teal); }
         .btn-secondary { background-color: #ffffff; color: var(--med-text-muted); border: 1px solid var(--med-border); }
         .btn-secondary:hover { background-color: #f1f5f9; color: var(--med-navy); }
+        .btn-blue { background-color: var(--med-blue); }
+        .btn-warning { background-color: #d97706; }
+       
         .hidden { display: none !important; }
         .status-badge { margin-top: 25px; padding: 12px; border-radius: 6px; background: #f1f5f9; font-weight: 500; font-size: 13px; text-align: center; color: var(--med-text-muted); border: 1px solid var(--med-border); }
         .scan-terminal-box { background: #f8fafc; border: 1px solid var(--med-border); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center; }
@@ -89,29 +90,21 @@
         .clinical-feed { text-align: left; margin-top: 20px; max-height: 300px; overflow-y: auto; border: 1px solid var(--med-border); border-radius: 6px; background: #f8fafc; }
         .feed-row { padding: 14px 18px; border-bottom: 1px solid var(--med-border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .feed-row:hover { background: #f0fdf4; }
-        
-        .diagnosis-box { background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #c2410c; }
-        .document-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #166534; }
-        .doctor-box { background: #f0fdfa; border: 1px solid #99f6e4; padding: 15px; border-radius: 6px; margin-bottom: 15px; color: #115e59; }
-        
+       
         .vitals-grid { display: flex; gap: 12px; background: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; justify-content: space-between; }
         .form-row-three { display: flex; gap: 10px; }
         .form-row-three > div { flex: 1; }
-        #file-status-msg, #quick-file-status { font-size: 13px; color: var(--med-teal); margin-top: -4px; margin-bottom: 10px; font-weight: 600; }
-
-        .timeline-card { background: #ffffff; border: 1px solid var(--med-border); border-left: 4px solid var(--med-blue); padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
-        .timeline-meta { font-size: 12px; color: var(--med-text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; font-weight: 500; }
-        .quick-consult-panel { background: #f8fafc; border: 1px dashed var(--med-blue); padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid var(--med-teal); }
+        .timeline-container { margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="med-container">
-    
+   
     <div id="view-homepage">
         <h2>MedLink Portal</h2>
         <p class="subtitle">Welcome to the hospital database.</p>
-        
+       
         <div class="med-menu-card" id="menu-opt-read">
             <div class="med-icon-circle">🩺</div>
             <h3>Scan Patient Card</h3>
@@ -126,130 +119,99 @@
     <div id="view-admin-login" class="hidden">
         <h2>Administrator Login</h2>
         <p class="subtitle">Please enter the password to access the patient database.</p>
-        
+       
         <label for="admin-login-password">Password</label>
         <input type="password" id="admin-login-password" placeholder="Enter admin password..." autocomplete="off">
-        
-        <button id="action-login" class="btn-blue">Log In</button>
-        <button id="action-cancel-login" class="btn-secondary">Cancel</button>
+       
+        <button id="action-login" class="btn btn-blue">Log In</button>
+        <button id="action-cancel-login" class="btn btn-secondary">Cancel</button>
     </div>
 
     <div id="view-admin-dashboard" class="hidden">
         <h2>Admin Dashboard</h2>
         <p class="subtitle">Manage all saved patient records below.</p>
-        
-        <button id="action-go-register" class="btn-teal" style="margin-top: 0;">➕ Register New Card</button>
-        
+       
+        <button id="action-go-register" class="btn btn-primary" style="margin-top: 0;">➕ Register New Card</button>
+       
         <div class="clinical-feed" id="patient-directory"></div>
-        
-        <button id="action-go-to-change-pw" class="btn-warning">⚙️ Change Admin Password</button>
-        <button id="action-logout" class="btn-secondary">🔒 Log Out</button>
+       
+        <button id="action-go-to-change-pw" class="btn btn-warning">⚙️ Change Admin Password</button>
+        <button id="action-logout" class="btn btn-secondary">🔒 Log Out</button>
     </div>
 
     <div id="view-scanner" class="hidden">
         <h2 id="scanner-title">Scan Card</h2>
         <p id="scanner-subtitle" class="subtitle">Hold the card against the reader.</p>
-        
+       
         <div class="scan-terminal-box">
             <label for="desktop-hidden-input" style="margin-top:0; margin-bottom: 8px; text-align: center; color: var(--med-text-muted);">💻 Laptop USB Reader Link</label>
             <input type="text" id="desktop-hidden-input" placeholder="Click here before scanning on laptop..." autocomplete="off">
         </div>
 
         <div class="divider-line">Or Use Phone Sensor</div>
-        <button id="mobile-scan-trigger" class="btn-blue">📱 Scan with Phone</button>
+        <button id="mobile-scan-trigger" class="btn btn-blue">📱 Scan with Phone</button>
         <div id="scan-status" class="status-badge">Status: Ready</div>
-        
-        <button id="action-cancel-scan" class="btn-secondary" style="margin-top: 25px;">← Go Back</button>
+       
+        <button id="action-cancel-scan" class="btn btn-secondary" style="margin-top: 25px;">← Go Back</button>
     </div>
 
-    <div id="view-patient-form" class="hidden">
+    <div id="screen-create-patient" class="hidden">
         <h2 id="form-title-text">Register New Patient</h2>
-        <p style="font-size: 13px; color: var(--med-text-muted); text-align: center; margin-bottom: 20px;">Card ID Number: <span id="display-card-uid" class="clinical-badge"></span></p>
-        
-        <label for="input-patient-name">Patient Name</label>
-        <input type="text" id="input-patient-name" placeholder="e.g., John Doe">
-
-        <div class="form-row-three">
-            <div>
-                <label for="input-patient-age">Age</label>
-                <input type="text" id="input-patient-age" placeholder="e.g., 34">
-            </div>
-            <div>
-                <label for="input-patient-sex">Sex</label>
-                <input type="text" id="input-patient-sex" placeholder="Male/Female">
-            </div>
-            <div>
-                <label for="input-patient-blood">Blood Type</label>
-                <input type="text" id="input-patient-blood" placeholder="e.g., O+">
+        <p class="subtitle">Card UID Token: <span id="display-card-uid" class="clinical-badge">--</span></p>
+                <button id="action-cancel-form" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
             </div>
         </div>
-
-        <label for="input-patient-diagnosis">Primary Checkup Diagnosis</label>
-        <input type="text" id="input-patient-diagnosis" placeholder="e.g., Acute Bronchitis, Seasonal Flu">
-
-        <label for="input-patient-file">Upload Diagnosis Photo / Document</label>
-        <input type="file" id="input-patient-file" accept="image/*,application/pdf">
-        <div id="file-status-msg"></div>
-        <button id="action-remove-file" class="btn-warning hidden" type="button" style="padding: 8px; font-size: 12px; width: auto; margin-top:0; margin-bottom:15px;">❌ Delete Attached Document</button>
-        
-        <label for="input-patient-notes">Medical Records / General Notes</label>
-        <textarea id="input-patient-notes" rows="4" placeholder="Type clinical history, allergies, or treatment updates here..."></textarea>
-        
-        <button id="action-save-patient" class="btn-teal">Save to Database</button>
-        <button id="action-delete-patient" class="btn-danger hidden">🗑 Remove Entire Patient ID</button>
-        <button id="action-cancel-form" class="btn-secondary">Cancel</button>
     </div>
 
-    <div id="view-patient-record" class="hidden">
-        <h1 id="record-name" class="page-title"></h1>
-        <p style="font-size: 13px; color: var(--med-text-muted); text-align: left; margin-top: 0; margin-bottom: 20px;">Card ID: <span id="record-uid" style="font-family: monospace; font-weight: 600;"></span></p>
-        <hr style="border: 0; border-top: 1px solid var(--med-border); margin-bottom: 15px;">
-        
+    <div id="screen-view-record" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 id="record-name" style="border:none; padding:0; margin:0; text-align: left;">Patient Name</h2>
+            <button id="action-edit-record" class="btn btn-secondary hidden" style="padding: 6px 16px; width: auto; margin-top: 0;">Modify Profile</button>
+        </div>
+        <p class="subtitle" style="margin-top: 5px; text-align: left;">Active Medical Record History</p>
+       
         <div class="vitals-grid">
             <div><strong>Age:</strong> <span id="record-age">--</span></div>
-            <div><strong>Sex:</strong> <span id="record-sex">--</span></div>
+            <div><strong>Gender:</strong> <span id="record-gender">--</span></div>
             <div><strong>Blood Type:</strong> <span id="record-blood">--</span></div>
         </div>
 
-        <div id="record-doctor-area" class="doctor-box hidden">
-            <strong>👨‍⚕️ Recently Visited Doctor:</strong> <span id="record-last-doctor"></span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div class="alert-box" style="background: #fef2f2; border-color: #fee2e2; color: #991b1b; padding: 12px; border-radius:6px; border:1px solid;">
+                <strong>Critical Allergies:</strong> <br><span id="record-allergies">None Known</span>
+            </div>
+            <div class="alert-box" style="background: #f5f3ff; border-color: #ede9fe; color: #5b21b6; padding: 12px; border-radius:6px; border:1px solid;">
+                <strong>Special Directives:</strong> <br><span id="record-directives">None</span>
+            </div>
         </div>
 
-        <div class="diagnosis-box">
-            <strong>📋 Latest Stamped Diagnosis:</strong> <span id="record-diagnosis"></span>
+        <h3>Baseline Medical History Notes</h3>
+        <p id="record-notes" style="background:#f8fafc; padding:15px; border-radius:6px; font-size:14px; line-height:1.6; border: 1px solid #e2e8f0; white-space: pre-wrap;">--</p>
+
+        <div class="doctor-panel-box" style="background: #f0f7ff; border: 1px solid #bae6fd; padding: 20px; border-radius: 8px; margin-top: 30px;">
+            <h3 style="margin-top:0; color:#0369a1;">Clinical Session Logging Desk</h3>
+           
+            <label for="input-visit-diagnosis"><strong>Primary Diagnosis for this Visit</strong></label>
+            <input type="text" id="input-visit-diagnosis" placeholder="What is the primary condition target for this specific visit?">
+
+            <label for="input-visit-notes">Consultation &amp; Treatment Activity Details</label>
+            <textarea id="input-visit-notes" rows="3" placeholder="Log details, symptoms evaluated, or medications prescribed today..."></textarea>
+           
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                <div>
+                    <label for="input-doctor-key">Doctor Verification Key</label>
+                    <input type="password" id="input-doctor-key" placeholder="Enter security verification key">
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button id="action-submit-session" class="btn btn-primary" style="width: 100%; height: 46px; margin-top: 0;">Sign &amp; Authenticate Session</button>
+                </div>
+            </div>
         </div>
 
-        <div id="record-document-area" class="document-box hidden">
-            <strong>📁 Latest Laboratory Document / Photo:</strong> <span id="record-test-title"></span><br>
-            <a id="record-test-link" href="#" target="_blank" download="medical-document" style="color: #15803d; font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">Click here to open/download file</a>
-        </div>
-
-        <div style="font-weight: 600; font-size: 14px; color: var(--med-navy); margin-bottom: 6px;">Initial Clinical Notes:</div>
-        <div id="record-notes" style="text-align: left; white-space: pre-wrap; line-height: 1.6; color: var(--med-text-main); font-size: 15px; background: #fafafa; padding: 12px; border: 1px solid var(--med-border); border-radius: 6px; margin-bottom: 20px;"></div>
-        
-        <div style="font-weight: 700; font-size: 15px; color: var(--med-navy); margin-top: 25px; margin-bottom: 10px;">📋 Progressive Checkup History Logs</div>
-        <div id="visit-history-timeline"></div>
-
-        <div class="quick-consult-panel">
-            <h3 style="margin: 0 0 4px 0; font-size: 16px; color: var(--med-navy); text-align: left;">➕ Log New Medical Visit</h3>
-            <p style="margin: 0 0 15px 0; font-size: 12px; color: var(--med-text-muted); text-align: left;">Append current checkups without modifying basic registration data.</p>
-            
-            <label for="quick-input-diagnosis" style="margin-top:0;">Visit Diagnosis & Details</label>
-            <textarea id="quick-input-diagnosis" rows="3" placeholder="Describe symptoms, assessment findings, or prescription modifications..."></textarea>
-            
-            <label for="quick-input-file">Attach Consultation File / Photo</label>
-            <input type="file" id="quick-input-file" accept="image/*,application/pdf">
-            <div id="quick-file-status"></div>
-            
-            <label for="quick-doctor-password">🔐 Doctor Verification Password</label>
-            <input type="password" id="quick-doctor-password" placeholder="Enter your custom private doctor key..." autocomplete="off">
-            
-            <button id="action-save-quick-visit" class="btn-teal" style="margin-top: 10px;">Sign & Authorize Entry</button>
-        </div>
-
-        <hr style="border: 0; border-top: 1px solid var(--med-border); margin: 30px 0 15px 0;">
-        <button id="action-edit-record" class="btn-warning hidden">⚙ Override Master Profile (Admin Only)</button>
-        <button id="action-close-record" class="btn-blue">← Close File</button>
+        <h3 style="margin-top: 30px;">Recently Visited Doctor Sessions</h3>
+        <div id="session-history-timeline" class="timeline-container"></div>
+       
+        <button id="action-close-record" class="btn btn-blue" style="margin-top: 25px;">← Close File</button>
     </div>
 
     <div id="view-change-password" class="hidden">
@@ -258,20 +220,36 @@
         <input type="password" id="pw-current" placeholder="Enter current password...">
         <label for="pw-new">New Password</label>
         <input type="password" id="pw-new" placeholder="Enter new password...">
-        <button id="action-save-password" class="btn-teal">Save New Password</button>
-        <button id="action-cancel-password" class="btn-secondary">Go Back</button>
+        <button id="action-save-password" class="btn btn-primary">Save New Password</button>
+        <button id="action-cancel-password" class="btn btn-secondary">Go Back</button>
     </div>
 
 </div>
 
 <script>
-    // Global Multi-Doctor Verification Registry System
+    // Global Security Verification Registry & Whitelists
     const DOCTOR_REGISTRY = {
-        "doc1": "Dr. K.P. Haridasan(Sensor consultant)",
-        "doc2": "Dr. Riya Mary Kurian (Dermatoligist)",
-        "doc3": "Dr. Anjali Menon (General Medicine)",
-        "doc4": "Dr. Muhammed Faizal (Orthopedics)"
+        "doc101": "Dr. Sarah Jenkins (Cardiology)",
+        "doc202": "Dr. James Carter (Pediatrics)",
+        "doc303": "Dr. Amara Patel (General Medicine)",
+        "doc999": "Dr. Robert Chen (Orthopedics)"
     };
+
+    const ALLOWED_GENDERS = [
+        "Male", "Female", "Non-binary", "Transgender Male",
+        "Transgender Female", "Genderqueer", "Genderfluid",
+        "Agender", "Bigender", "Prefer not to say"
+    ];
+
+    const ALLOWED_ALLERGIES = [
+        "None Known", "Penicillin", "Amoxicillin", "Sulfa Drugs", "Aspirin", "Ibuprofen", "Naproxen",
+        "Codeine", "Morphine", "Oxycodone", "Contrast Dye", "Iodine", "Anesthetics (Lidocaine)", "Insulin",
+        "Tetracycline", "Neomycin", "Peanuts", "Tree Nuts", "Milk / Dairy", "Eggs", "Wheat", "Soy", "Fish",
+        "Shellfish", "Sesame", "Mustard", "Strawberries", "Gluten", "Citrus Fruits", "Avocado", "Kiwi",
+        "Celery", "MSG", "Latex", "Bee Stings", "Wasp Stings", "Hornet Stings", "Dust Mites", "Mold",
+        "Pollen (Grass)", "Pollen (Tree)", "Cat Dander", "Dog Dander", "Nickel", "Fragrances", "Sulfites",
+        "Tartrazine", "Gelatin", "Formaldehyde"
+    ];
 
     // Global Crash Safety Handler
     window.onerror = function(msg, url, line) {
@@ -290,7 +268,7 @@
         appId: "1:912366477405:web:e7ade3d21de3d77639edb4"
     };
 
-    // Safe Database Isolation Core (Prevents screen freezing if CDN scripts load late)
+    // Safe Database Isolation Core
     let db;
     try {
         if (typeof firebase !== 'undefined') {
@@ -304,15 +282,9 @@
     }
 
     // App State Variables
-    let currentMode = null; 
+    let currentMode = null;
     let activeCardID = null;
     let isAdminLoggedIn = false;
-    
-    // File upload global memory buffers
-    let base64FileString = "";
-    let uploadedFileName = "";
-    let quickBase64FileString = "";
-    let quickUploadedFileName = "";
 
     // View Navigation Function
     function showScreen(screenId) {
@@ -320,12 +292,12 @@
         document.getElementById('view-admin-login').classList.add('hidden');
         document.getElementById('view-admin-dashboard').classList.add('hidden');
         document.getElementById('view-scanner').classList.add('hidden');
-        document.getElementById('view-patient-form').classList.add('hidden');
-        document.getElementById('view-patient-record').classList.add('hidden');
+        document.getElementById('screen-create-patient').classList.add('hidden');
+        document.getElementById('screen-view-record').classList.add('hidden');
         document.getElementById('view-change-password').classList.add('hidden');
-        
+       
         document.getElementById(screenId).classList.remove('hidden');
-        
+       
         if (screenId === 'view-scanner') {
             document.getElementById('desktop-hidden-input').value = '';
             document.getElementById('desktop-hidden-input').focus();
@@ -351,7 +323,7 @@
     document.getElementById('action-login').addEventListener('click', () => {
         if (!db) { alert("Database connection unavailable."); return; }
         const enteredPassword = document.getElementById('admin-login-password').value;
-        
+       
         db.ref('system/admin_password').once('value').then((snapshot) => {
             let actualPassword = snapshot.val() || 'admin123';
             if (enteredPassword === actualPassword) {
@@ -368,25 +340,25 @@
         if (!db) { alert("Database connection offline."); return; }
         const directory = document.getElementById('patient-directory');
         directory.innerHTML = '<p style="text-align:center; padding: 20px;">Loading records...</p>';
-        
+       
         db.ref('patients').once('value').then((snapshot) => {
             directory.innerHTML = '';
             let hasPatients = false;
-            
+           
             snapshot.forEach((child) => {
                 hasPatients = true;
                 const cardID = child.key;
                 const patientData = child.val() || {};
-                
+               
                 const item = document.createElement('div');
                 item.className = 'feed-row';
                 item.innerHTML = `<span>📂 <strong>${patientData.title || 'Unknown'}</strong></span> <span class="clinical-badge">${cardID}</span>`;
-                
+               
                 item.addEventListener('click', () => {
                     activeCardID = cardID;
                     openPatientRecord(patientData, true);
                 });
-                
+               
                 directory.appendChild(item);
             });
 
@@ -406,13 +378,11 @@
         currentMode = 'CREATE';
         document.getElementById('scanner-title').innerText = "Register New Card";
         document.getElementById('scanner-subtitle').innerText = "Scan a blank card to assign it to a new patient.";
-        document.getElementById('action-delete-patient').classList.add('hidden'); 
         showScreen('view-scanner');
     });
 
     // --- 3. SCANNER LOGIC ---
     const desktopInput = document.getElementById('desktop-hidden-input');
-    
     if (desktopInput) {
         desktopInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -452,24 +422,19 @@
     function processScannedCard(cardID) {
         if (!db) { alert("Database connection failure."); return; }
         activeCardID = cardID;
-        
+       
         if (currentMode === 'CREATE') {
             document.getElementById('form-title-text').innerText = "Register New Patient";
             document.getElementById('display-card-uid').innerText = activeCardID;
             document.getElementById('input-patient-name').value = '';
             document.getElementById('input-patient-age').value = '';
-            document.getElementById('input-patient-sex').value = '';
+            document.getElementById('input-patient-gender').value = '';
             document.getElementById('input-patient-blood').value = '';
-            document.getElementById('input-patient-diagnosis').value = '';
-            document.getElementById('input-patient-file').value = '';
-            document.getElementById('file-status-msg').innerText = '';
-            document.getElementById('action-remove-file').classList.add('hidden');
+            document.getElementById('input-patient-allergies').value = '';
+            document.getElementById('input-patient-directives').value = 'None';
             document.getElementById('input-patient-notes').value = '';
-            document.getElementById('action-delete-patient').classList.add('hidden'); 
-            base64FileString = "";
-            uploadedFileName = "";
-            showScreen('view-patient-form');
-            
+            showScreen('screen-create-patient');
+           
         } else if (currentMode === 'READ') {
             db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
                 if (snapshot.exists()) {
@@ -483,161 +448,102 @@
         }
     }
 
-    // --- BASE64 MULTI-CONVERSION FILE ENGINE ---
-    document.getElementById('input-patient-file').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const statusMsg = document.getElementById('file-status-msg');
-        const removeBtn = document.getElementById('action-remove-file');
-        if (file) {
-            if (file.size > 2 * 1024 * 1024) { 
-                alert("File too large! Must be under 2MB.");
-                this.value = ""; statusMsg.innerText = ""; return;
-            }
-            const reader = new FileReader();
-            statusMsg.innerText = "Processing file... Please wait.";
-            reader.onload = function(event) {
-                base64FileString = event.target.result;
-                uploadedFileName = file.name;
-                statusMsg.innerText = "📄 Ready: " + file.name;
-                statusMsg.style.color = "var(--med-teal)";
-                removeBtn.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    // --- 4. SAVE PATIENT PROFILE ---
+    // --- 5. SUBMIT EVALUATION RECENT VISIT ---
+    document.getElementById('action-submit-session').addEventListener('click', () => {
+        if (!db) { alert("Database interaction error."); return; }
 
-    document.getElementById('quick-input-file').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const statusMsg = document.getElementById('quick-file-status');
-        if (file) {
-            if (file.size > 2 * 1024 * 1024) { 
-                alert("File too large! Must be under 2MB.");
-                this.value = ""; statusMsg.innerText = ""; return;
-            }
-            const reader = new FileReader();
-            statusMsg.innerText = "Encoding attachment components...";
-            reader.onload = function(event) {
-                quickBase64FileString = event.target.result;
-                quickUploadedFileName = file.name;
-                statusMsg.innerText = "📄 Document linked: " + file.name;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+        const diagnosis = document.getElementById('input-visit-diagnosis').value.trim();
+        const visitNotes = document.getElementById('input-visit-notes').value.trim();
+        const docKey = document.getElementById('input-doctor-key').value.trim();
 
-    document.getElementById('action-remove-file').addEventListener('click', function() {
-        base64FileString = ""; uploadedFileName = "";
-        document.getElementById('input-patient-file').value = "";
-        document.getElementById('file-status-msg').innerText = "Document cleared.";
-        this.classList.add('hidden');
-    });
-
-    // --- 4. VIEW, EDIT, & APPEND VISITS ---
-    function openPatientRecord(data, showEditButton) {
-        document.getElementById('record-name').innerText = data.title || 'Unknown';
-        document.getElementById('record-age').innerText = data.age || 'N/A';
-        document.getElementById('record-sex').innerText = data.sex || 'N/A';
-        document.getElementById('record-blood').innerText = data.bloodType || 'N/A';
-        document.getElementById('record-diagnosis').innerText = data.diagnosis || 'No checkup diagnosis recorded yet.';
-        document.getElementById('record-notes').innerText = data.content || '';
-        document.getElementById('record-uid').innerText = activeCardID;
-        
-        const docBox = document.getElementById('record-doctor-area');
-        if (data.lastVisitedDoctor) {
-            document.getElementById('record-last-doctor').innerText = data.lastVisitedDoctor;
-            docBox.classList.remove('hidden');
-        } else {
-            docBox.classList.add('hidden');
-        }
-
-        const docArea = document.getElementById('record-document-area');
-        if (data.attachedFile && data.attachedFile.trim() !== '') {
-            document.getElementById('record-test-title').innerText = data.attachedFileName || 'Checkup Document';
-            document.getElementById('record-test-link').href = data.attachedFile;
-            docArea.classList.remove('hidden');
-        } else {
-            docArea.classList.add('hidden');
-        }
-
-        const timeline = document.getElementById('visit-history-timeline');
-        timeline.innerHTML = '';
-        if (data.visits) {
-            Object.keys(data.visits).reverse().forEach((key) => {
-                const visit = data.visits[key];
-                const block = document.createElement('div');
-                block.className = 'timeline-card';
-                
-                let appendFileHTML = '';
-                if (visit.file && visit.file.trim() !== '') {
-                    appendFileHTML = `<br><a href="${visit.file}" target="_blank" download="consultation-doc" style="color: var(--med-teal); font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 6px;">📁 Open Visit Attachment: ${visit.fileName}</a>`;
-                }
-
-                block.innerHTML = `
-                    <div class="timeline-meta">
-                        <span>👨‍⚕️ ${visit.doctor}</span>
-                        <span>📅 ${visit.timestamp}</span>
-                    </div>
-                    <div style="color: var(--med-text-main); line-height: 1.5; white-space: pre-wrap;">${visit.diagnosis}</div>
-                    ${appendFileHTML}
-                `;
-                timeline.appendChild(block);
-            });
-        } else {
-            timeline.innerHTML = '<p style="font-size:13px; color:var(--med-text-muted); font-style: italic; margin:0;">No previous history records logged for this card.</p>';
-        }
-
-        if (showEditButton) {
-            document.getElementById('action-edit-record').classList.remove('hidden');
-        } else {
-            document.getElementById('action-edit-record').classList.add('hidden');
-        }
-        
-        document.getElementById('quick-input-diagnosis').value = '';
-        document.getElementById('quick-input-file').value = '';
-        document.getElementById('quick-file-status').innerText = '';
-        document.getElementById('quick-doctor-password').value = '';
-        quickBase64FileString = ""; quickUploadedFileName = "";
-
-        showScreen('view-patient-record');
-    }
-
-    document.getElementById('action-save-quick-visit').addEventListener('click', () => {
-        if (!db) { alert("Database offline."); return; }
-        const quickDiag = document.getElementById('quick-input-diagnosis').value.trim();
-        const docPass = document.getElementById('quick-doctor-password').value.trim();
-
-        if (!quickDiag) { alert("Please input the diagnosis report fields."); return; }
-        if (!docPass) { alert("Authorization Key Required."); return; }
-
-        if (!DOCTOR_REGISTRY[docPass]) {
-            alert("Access Denied: Invalid doctor password validation signature.");
+        if (!diagnosis) { alert("⚠️ Verification Intercept: A Primary Session Diagnosis entry is required."); return; }
+        if (!visitNotes) { alert("⚠️ Verification Intercept: Consultation treatment activity logs cannot be empty."); return; }
+       
+        if (!DOCTOR_REGISTRY[docKey]) {
+            alert("⚠️ Security System Violation: Unauthorized Doctor Verification Passkey credential.");
             return;
         }
 
-        const authenticatedDoctor = DOCTOR_REGISTRY[docPass];
-        const localizedTimestamp = new Date().toLocaleString();
-
-        const appendPayload = {
-            doctor: authenticatedDoctor,
-            timestamp: localizedTimestamp,
-            diagnosis: quickDiag,
-            file: quickBase64FileString,
-            fileName: quickUploadedFileName
+        const sessionObject = {
+            timestamp: new Date().toLocaleString(),
+            attendingDoctor: DOCTOR_REGISTRY[docKey],
+            primaryDiagnosis: diagnosis,
+            sessionNotes: visitNotes
         };
 
-        db.ref('patients/' + activeCardID).update({
-            lastVisitedDoctor: authenticatedDoctor,
-            diagnosis: quickDiag,
-            attachedFile: quickBase64FileString, 
-            attachedFileName: quickUploadedFileName
-        }).then(() => {
-            return db.ref('patients/' + activeCardID + '/visits').push(appendPayload);
-        }).then(() => {
-            alert("Visit report safely archived under signature of " + authenticatedDoctor);
-            return db.ref('patients/' + activeCardID).once('value');
-        }).then((snapshot) => {
-            openPatientRecord(snapshot.val() || {}, isAdminLoggedIn);
+        db.ref('patients/' + activeCardID + '/visits').push(sessionObject).then(() => {
+            alert(`✅ Session verified & securely written via identity: ${DOCTOR_REGISTRY[docKey]}!`);
+            document.getElementById('input-visit-diagnosis').value = '';
+            document.getElementById('input-visit-notes').value = '';
+            document.getElementById('input-doctor-key').value = '';
+           
+            db.ref('patients/' + activeCardID).once('value').then((snap) => {
+                openPatientRecord(snap.val(), true);
+            });
         });
+    });
+
+    // --- 6. RENDER INTERACTIVE DATA LAYOUT ---
+    function openPatientRecord(data, showEditButton) {
+        document.getElementById('record-name').innerText = data.title || 'Profile Unidentified';
+        document.getElementById('record-age').innerText = data.age || 'N/A';
+        document.getElementById('record-gender').innerText = data.gender || 'N/A';
+        document.getElementById('record-blood').innerText = data.bloodType || 'N/A';
+        document.getElementById('record-allergies').innerText = data.allergies || 'None Known';
+        document.getElementById('record-directives').innerText = data.directives || 'None';
+        document.getElementById('record-notes').innerText = data.content || 'No historical logs provided.';
+
+        const timelineContainer = document.getElementById('session-history-timeline');
+        timelineContainer.innerHTML = '';
+
+        if (data.visits) {
+            Object.keys(data.visits).reverse().forEach(visitId => {
+                const visit = data.visits[visitId];
+                const card = document.createElement('div');
+                card.className = 'session-timeline-card';
+                card.style = 'background: #ffffff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; text-align: left;';
+            timelineContainer.innerHTML = `<p style="color: #94a3b8; font-style: italic; font-size: 13px; text-align: left;">No validated diagnostic clinical history sessions exist for this profile yet.</p>`;
+        }
+
+        const editBtn = document.getElementById('action-edit-record');
+        if (showEditButton) {
+            editBtn.classList.remove('hidden');
+        } else {
+            editBtn.classList.add('hidden');
+        }
+
+        // Clean out form fields from older visual remnants
+        document.getElementById('input-visit-diagnosis').value = '';
+        document.getElementById('input-visit-notes').value = '';
+        document.getElementById('input-doctor-key').value = '';
+
+        showScreen('screen-view-record');
+    }
+
+    // --- 7. MODIFICATION / AUTOFILL ROUTINE ---
+    document.getElementById('action-edit-record').addEventListener('click', () => {
+        if (!db) { alert("Database reference error."); return; }
+        db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('form-title-text').innerText = "Edit Patient Details";
+            document.getElementById('display-card-uid').innerText = activeCardID;
+           
+            document.getElementById('input-patient-name').value = data.title || '';
+            document.getElementById('input-patient-age').value = data.age || '';
+            document.getElementById('input-patient-gender').value = data.gender || '';
+            document.getElementById('input-patient-blood').value = data.bloodType || '';
+            document.getElementById('input-patient-allergies').value = data.allergies || 'None Known';
+            document.getElementById('input-patient-directives').value = data.directives || 'None';
+            document.getElementById('input-patient-notes').value = data.content || '';
+           
+            showScreen('screen-create-patient');
+        });
+    });
+
+    document.getElementById('action-cancel-form').addEventListener('click', () => {
+        if (isAdminLoggedIn) loadAdminDashboard();
+        else showScreen('view-homepage');
     });
 
     document.getElementById('action-close-record').addEventListener('click', () => {
@@ -645,77 +551,7 @@
         else showScreen('view-homepage');
     });
 
-    document.getElementById('action-edit-record').addEventListener('click', () => {
-        if (!db) { alert("Database error."); return; }
-        db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
-            const data = snapshot.val() || {};
-            document.getElementById('form-title-text').innerText = "Edit Patient Details";
-            document.getElementById('display-card-uid').innerText = activeCardID;
-            
-            document.getElementById('input-patient-name').value = data.title || '';
-            document.getElementById('input-patient-age').value = data.age || '';
-            document.getElementById('input-patient-sex').value = data.sex || '';
-            document.getElementById('input-patient-blood').value = data.bloodType || '';
-            document.getElementById('input-patient-diagnosis').value = data.diagnosis === 'No checkup diagnosis recorded yet.' ? '' : (data.diagnosis || '');
-            document.getElementById('input-patient-notes').value = data.content || '';
-            
-            document.getElementById('input-patient-file').value = "";
-            if (data.attachedFile) {
-                base64FileString = data.attachedFile;
-                uploadedFileName = data.attachedFileName || "Attached Document";
-                document.getElementById('file-status-msg').innerText = "📂 Cloud File: " + uploadedFileName;
-                document.getElementById('action-remove-file').classList.remove('hidden');
-            } else {
-                base64FileString = ""; uploadedFileName = "";
-                document.getElementById('file-status-msg').innerText = "";
-                document.getElementById('action-remove-file').classList.add('hidden');
-            }
-            
-            document.getElementById('action-delete-patient').classList.remove('hidden'); 
-            showScreen('view-patient-form');
-        });
-    });
-
-    document.getElementById('action-save-patient').addEventListener('click', () => {
-        if (!db) { alert("Database error."); return; }
-        const name = document.getElementById('input-patient-name').value.trim();
-        const age = document.getElementById('input-patient-age').value.trim();
-        const sex = document.getElementById('input-patient-sex').value.trim();
-        const bloodType = document.getElementById('input-patient-blood').value.trim();
-        const diagnosis = document.getElementById('input-patient-diagnosis').value.trim();
-        const notes = document.getElementById('input-patient-notes').value.trim();
-
-        if (!name || !notes) { alert("Please fill out Name and Notes fields."); return; }
-
-        const updateData = {
-            title: name,
-            age: age || 'N/A',
-            sex: sex || 'N/A',
-            bloodType: bloodType || 'N/A',
-            diagnosis: diagnosis || 'N/A',
-            attachedFile: base64FileString,
-            attachedFileName: uploadedFileName,
-            content: notes
-        };
-
-        db.ref('patients/' + activeCardID).update(updateData).then(() => {
-            loadAdminDashboard();
-        });
-    });
-
-    document.getElementById('action-delete-patient').addEventListener('click', () => {
-        if (!db) { alert("Database error."); return; }
-        const confirmation = confirm("Completely erase patient card data?");
-        if (confirmation) {
-            db.ref('patients/' + activeCardID).remove().then(() => {
-                loadAdminDashboard();
-            });
-        }
-    });
-
-    document.getElementById('action-cancel-form').addEventListener('click', () => loadAdminDashboard());
-
-    // --- 5. ADMIN PASSWORD MANAGEMENT ---
+    // --- 8. ADMIN PASSWORD MANAGEMENT ---
     document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
         document.getElementById('pw-current').value = '';
         document.getElementById('pw-new').value = '';
