@@ -205,7 +205,7 @@
                 <option value="No Bovine-Derived Products">No Bovine (Cow) Derived Products/Medications</option>
                 <option value="Faith-Based Dietary Restrictions Only">Faith-Based Dietary Restrictions Only</option>
                 <option value="Specific End-of-Life Directives Documented">Specific End-of-Life Directives Documented</option>
-                <option value="Prefer Not to Disclose">Prefer Not to Disclose</option>
+                <option value="Prefer Not to Say">Prefer Not to Disclose</option>
             </select>
 
             <label for="input-patient-notes">Baseline Medical History Notes</label>
@@ -249,10 +249,11 @@
             <label for="input-doctor-select"><strong>Attending Doctor</strong></label>
             <select id="input-doctor-select">
                 <option value="">-- Select Doctor --</option>
-                <option value="doc101">Dr. Sarah Jenkins (Cardiology)</option>
-                <option value="doc202">Dr. James Carter (Pediatrics)</option>
-                <option value="doc303">Dr. Amara Patel (General Medicine)</option>
-                <option value="doc999">Dr. Robert Chen (Orthopedics)</option>
+                <option value="doc1">Dr. Raj (Cardiology)</option>
+                <option value="doc2">Dr. Jyothi (Pediatrics)</option>
+                <option value="doc3">Dr. Babu (ALL MEDICINE)</option>
+                <option value="doc4">Dr. Mary George (Orthopedics)</option>
+                <option value="doc5">Dr. Jesus C (Holy Water)</option>
             </select>
 
             <label for="input-visit-diagnosis"><strong>Primary Diagnosis for this Visit</strong></label>
@@ -296,14 +297,15 @@
     const DOCTOR_REGISTRY = {
         "doc1": "Dr. Raj (Cardiology)",
         "doc2": "Dr. Jyothi (Pediatrics)",
-        "doc3": "Dr. Jesus christ (Holy water)",
+        "doc3": "Dr. Babu (ALL MEDICINE)",
         "doc4": "Dr. Mary George (Orthopedics)"
+        "doc5": "Dr. Jesus C (Holy water)"
     };
 
     const ALLOWED_GENDERS = [
         "Male", "Female", "Non-binary", "Transgender Male",
         "Transgender Female", "Genderqueer", "Genderfluid",
-        "Agender", "Bigender", "Prefer not to say"
+        "Agender", "Bigender", "Prefer not to say", "Other"
     ];
 
     const ALLOWED_ALLERGIES = [
@@ -313,7 +315,7 @@
         "Shellfish", "Sesame", "Mustard", "Strawberries", "Gluten", "Citrus Fruits", "Avocado", "Kiwi",
         "Celery", "MSG", "Latex", "Bee Stings", "Wasp Stings", "Hornet Stings", "Dust Mites", "Mold",
         "Pollen (Grass)", "Pollen (Tree)", "Cat Dander", "Dog Dander", "Nickel", "Fragrances", "Sulfites",
-        "Tartrazine", "Gelatin", "Formaldehyde"
+        "Tartrazine", "Gelatin", "Formaldehyde", "Other"
     ];
 
     // Global Crash Safety Handler
