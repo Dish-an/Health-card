@@ -214,6 +214,12 @@
                 <option value="Specific End-of-Life Directives Documented">Specific End-of-Life Directives Documented</option>
                 <option value="Prefer Not to Say">Prefer Not to Disclose</option>
             </select>
+            <label for="input-patient-donor">Organ Donor Status</label>
+<select id="input-patient-donor">
+    <option value="">-- Select --</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+</select>
 
             <label for="input-patient-notes">Baseline Medical History Notes</label>
             <textarea id="input-patient-notes" rows="4" placeholder="Enter baseline conditions, chronic context..."></textarea>
@@ -235,6 +241,7 @@
             <div><strong>Age:</strong> <span id="record-age">--</span></div>
             <div><strong>Gender:</strong> <span id="record-gender">--</span></div>
             <div><strong>Blood Type:</strong> <span id="record-blood">--</span></div>
+            <div><strong>Organ Donor:</strong> <span id="record-donor">--</span></div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
@@ -507,6 +514,7 @@
             document.getElementById('input-patient-allergies').value = '';
             document.getElementById('input-patient-directives').value = 'None';
             document.getElementById('input-patient-notes').value = '';
+            document.getElementById('input-patient-donor').value = '';
             showScreen('screen-create-patient');
             
         } else if (currentMode === 'READ') {
@@ -533,6 +541,7 @@
         const allergies = document.getElementById('input-patient-allergies').value.trim();
         const directives = document.getElementById('input-patient-directives').value;
         const notes = document.getElementById('input-patient-notes').value.trim();
+        const donor = document.getElementById('input-patient-donor').value;
 
         if (!name) { alert("❌ Validation Error: Patient Name cannot be left blank."); return; }
         
@@ -562,7 +571,8 @@
             bloodType: bloodType,
             allergies: allergies,
             directives: directives,
-            content: notes
+            content: notes,
+            donor: donor
         };
 
         db.ref('patients/' + activeCardID).update(profileData).then(() => {
@@ -617,6 +627,7 @@
         document.getElementById('record-allergies').innerText = data.allergies || 'None Known';
         document.getElementById('record-directives').innerText = data.directives || 'None';
         document.getElementById('record-notes').innerText = data.content || 'No historical logs provided.';
+        document.getElementById('record-donor').innerText = data.donor || 'N/A';
 
         const timelineContainer = document.getElementById('session-history-timeline');
         timelineContainer.innerHTML = '';
@@ -690,6 +701,7 @@
             document.getElementById('input-patient-allergies').value = data.allergies || 'None Known';
             document.getElementById('input-patient-directives').value = data.directives || 'None';
             document.getElementById('input-patient-notes').value = data.content || '';
+            document.getElementById('input-patient-donor').value = data.donor || '';
             
             showScreen('screen-create-patient');
         });
