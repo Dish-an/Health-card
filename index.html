@@ -101,6 +101,7 @@
 
 <div class="med-container">
     
+    <!-- MAIN INTERACTIVE HOMEPAGE HUB -->
     <div id="view-homepage">
         <h2>MedLink Portal</h2>
         <p class="subtitle">Welcome to the hospital database.</p>
@@ -116,6 +117,7 @@
         </div>
     </div>
 
+    <!-- SECURITY LOGIN DISPATCH BOX -->
     <div id="view-admin-login" class="hidden">
         <h2>Administrator Login</h2>
         <p class="subtitle">Please enter the password to access the patient database.</p>
@@ -127,6 +129,7 @@
         <button id="action-cancel-login" class="btn btn-secondary">Cancel</button>
     </div>
 
+    <!-- MAIN ADMINISTRATIVE OPERATION CONTROL DESK -->
     <div id="view-admin-dashboard" class="hidden">
         <h2>Admin Dashboard</h2>
         <p class="subtitle">Manage all saved patient records below.</p>
@@ -139,6 +142,7 @@
         <button id="action-logout" class="btn btn-secondary">🔒 Log Out</button>
     </div>
 
+    <!-- CENTRAL SCANNING HUB -->
     <div id="view-scanner" class="hidden">
         <h2 id="scanner-title">Scan Card</h2>
         <p id="scanner-subtitle" class="subtitle">Hold the card against the reader.</p>
@@ -155,6 +159,7 @@
         <button id="action-cancel-scan" class="btn btn-secondary" style="margin-top: 25px;">← Go Back</button>
     </div>
 
+    <!-- SCREEN 5: CREATE / EDIT PATIENT -->
     <div id="screen-create-patient" class="hidden">
         <h2 id="form-title-text">Register New Patient</h2>
         <p class="subtitle">Card UID Token: <span id="display-card-uid" class="clinical-badge">--</span></p>
@@ -181,7 +186,7 @@
                     <label for="input-patient-blood">Blood Type</label>
                     <select id="input-patient-blood">
                         <option value="">-- Select --</option>
-                        <option value="A+"><option value="A-"><option value="B+"><option value="B-"><option value="AB+"><option value="AB-"><option value="O+"><option value="O-">
+                        <option value="A+"><option value="A-"><option value="B+"><option value="B-"><option value="AB+"><option value="AB-"><option value="O+"><option value="O-"></option>
                     </select>
                 </div>
             </div>
@@ -189,7 +194,7 @@
             <label for="input-patient-allergies">Known Allergies</label>
             <input type="text" id="input-patient-allergies" list="allergy-options" placeholder="Type or select allergy profile..." autocomplete="off">
             <datalist id="allergy-options">
-                <option value="None Known"><option value="Penicillin"><option value="Amoxicillin"><option value="Sulfa Drugs"><option value="Aspirin"><option value="Ibuprofen"><option value="Naproxen"><option value="Codeine"><option value="Morphine"><option value="Oxycodone"><option value="Contrast Dye"><option value="Iodine"><option value="Anesthetics (Lidocaine)"><option value="Insulin"><option value="Tetracycline"><option value="Neomycin"><option value="Peanuts"><option value="Tree Nuts"><option value="Milk / Dairy"><option value="Eggs"><option value="Wheat"><option value="Soy"><option value="Fish"><option value="Shellfish"><option value="Sesame"><option value="Mustard"><option value="Strawberries"><option value="Gluten"><option value="Citrus Fruits"><option value="Avocado"><option value="Kiwi"><option value="Celery"><option value="MSG"><option value="Latex"><option value="Bee Stings"><option value="Wasp Stings"><option value="Hornet Stings"><option value="Dust Mites"><option value="Mold"><option value="Pollen (Grass)"><option value="Pollen (Tree)"><option value="Cat Dander"><option value="Dog Dander"><option value="Nickel"><option value="Fragrances"><option value="Sulfites"><option value="Tartrazine"><option value="Gelatin"><option value="Formaldehyde">
+                <option value="None Known"><option value="Penicillin"><option value="Amoxicillin"><option value="Sulfa Drugs"><option value="Aspirin"><option value="Ibuprofen"><option value="Naproxen"><option value="Codeine"><option value="Morphine"><option value="Oxycodone"><option value="Contrast Dye"><option value="Iodine"><option value="Anesthetics (Lidocaine)"><option value="Insulin"><option value="Tetracycline"><option value="Neomycin"><option value="Peanuts"><option value="Tree Nuts"><option value="Milk / Dairy"><option value="Eggs"><option value="Wheat"><option value="Soy"><option value="Fish"><option value="Shellfish"><option value="Sesame"><option value="Mustard"><option value="Strawberries"><option value="Gluten"><option value="Citrus Fruits"><option value="Avocado"><option value="Kiwi"><option value="Celery"><option value="MSG"><option value="Latex"><option value="Bee Stings"><option value="Wasp Stings"><option value="Hornet Stings"><option value="Dust Mites"><option value="Mold"><option value="Pollen (Grass)"><option value="Pollen (Tree)"><option value="Cat Dander"><option value="Dog Dander"><option value="Nickel"><option value="Fragrances"><option value="Sulfites"><option value="Tartrazine"><option value="Gelatin"><option value="Formaldehyde"></option>
             </datalist>
 
             <label for="input-patient-directives">Religious / Ethical Care Directives</label>
@@ -211,6 +216,7 @@
         </div>
     </div>
 
+    <!-- SCREEN 6: VIEW SINGLE PATIENT RECORD -->
     <div id="screen-view-record" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 id="record-name" style="border:none; padding:0; margin:0; text-align: left;">Patient Name</h2>
@@ -236,9 +242,19 @@
         <h3>Baseline Medical History Notes</h3>
         <p id="record-notes" style="background:#f8fafc; padding:15px; border-radius:6px; font-size:14px; line-height:1.6; border: 1px solid #e2e8f0; white-space: pre-wrap;">--</p>
 
+        <!-- 🩺 CLINICAL SESSION LOGGING DESK -->
         <div class="doctor-panel-box" style="background: #f0f7ff; border: 1px solid #bae6fd; padding: 20px; border-radius: 8px; margin-top: 30px;">
             <h3 style="margin-top:0; color:#0369a1; text-align: left;">🩺 Clinical Session Logging Desk</h3>
             
+            <label for="input-doctor-select"><strong>Attending Doctor</strong></label>
+            <select id="input-doctor-select">
+                <option value="">-- Select Doctor --</option>
+                <option value="doc101">Dr. Sarah Jenkins (Cardiology)</option>
+                <option value="doc202">Dr. James Carter (Pediatrics)</option>
+                <option value="doc303">Dr. Amara Patel (General Medicine)</option>
+                <option value="doc999">Dr. Robert Chen (Orthopedics)</option>
+            </select>
+
             <label for="input-visit-diagnosis"><strong>Primary Diagnosis for this Visit</strong></label>
             <input type="text" id="input-visit-diagnosis" placeholder="What is the primary condition target for this specific visit?">
 
@@ -262,6 +278,7 @@
         <button id="action-close-record" class="btn btn-blue" style="margin-top: 25px;">← Close File</button>
     </div>
 
+    <!-- PASSWORD CONTROL CONFIG PANEL -->
     <div id="view-change-password" class="hidden">
         <h2>Change Admin Password</h2>
         <label for="pw-current">Current Password</label>
@@ -277,10 +294,10 @@
 <script>
     // Global Security Verification Registry & Whitelists
     const DOCTOR_REGISTRY = {
-        "doc101": "Dr. Sarah Jenkins (Cardiology)",
-        "doc202": "Dr. James Carter (Pediatrics)",
-        "doc303": "Dr. Amara Patel (General Medicine)",
-        "doc999": "Dr. Robert Chen (Orthopedics)"
+        "doc1": "Dr. Raj (Cardiology)",
+        "doc2": "Dr. Jyothi (Pediatrics)",
+        "doc3": "Dr. Jesus christ (Holy water)",
+        "doc4": "Dr. Mary George (Orthopedics)"
     };
 
     const ALLOWED_GENDERS = [
@@ -548,27 +565,30 @@
     document.getElementById('action-submit-session').addEventListener('click', () => {
         if (!db) { alert("Database interaction error."); return; }
 
+        const selectedDocKey = document.getElementById('input-doctor-select').value;
         const diagnosis = document.getElementById('input-visit-diagnosis').value.trim();
         const visitNotes = document.getElementById('input-visit-notes').value.trim();
         const docKey = document.getElementById('input-doctor-key').value.trim();
 
+        if (!selectedDocKey) { alert("⚠️ Verification Intercept: Please select an Attending Doctor from the dropdown."); return; }
         if (!diagnosis) { alert("⚠️ Verification Intercept: A Primary Session Diagnosis entry is required."); return; }
         if (!visitNotes) { alert("⚠️ Verification Intercept: Consultation treatment activity logs cannot be empty."); return; }
         
-        if (!DOCTOR_REGISTRY[docKey]) {
-            alert("⚠️ Security System Violation: Unauthorized Doctor Verification Passkey credential.");
+        if (!docKey || docKey !== selectedDocKey) {
+            alert("⚠️ Security System Violation: Incorrect or unauthorized Doctor Verification Key for the selected physician.");
             return;
         }
 
         const sessionObject = {
             timestamp: new Date().toLocaleString(),
-            attendingDoctor: DOCTOR_REGISTRY[docKey],
+            attendingDoctor: DOCTOR_REGISTRY[selectedDocKey],
             primaryDiagnosis: diagnosis,
             sessionNotes: visitNotes
         };
 
         db.ref('patients/' + activeCardID + '/visits').push(sessionObject).then(() => {
-            alert(`✅ Session verified & securely written via identity: ${DOCTOR_REGISTRY[docKey]}!`);
+            alert(`✅ Session verified & securely written via identity: ${DOCTOR_REGISTRY[selectedDocKey]}!`);
+            document.getElementById('input-doctor-select').value = '';
             document.getElementById('input-visit-diagnosis').value = '';
             document.getElementById('input-visit-notes').value = '';
             document.getElementById('input-doctor-key').value = '';
@@ -638,6 +658,7 @@
         }
 
         // Clean out form fields from older visual remnants
+        document.getElementById('input-doctor-select').value = '';
         document.getElementById('input-visit-diagnosis').value = '';
         document.getElementById('input-visit-notes').value = '';
         document.getElementById('input-doctor-key').value = '';
