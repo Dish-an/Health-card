@@ -223,7 +223,8 @@
 
             <label for="input-patient-notes">Baseline Medical History Notes</label>
             <textarea id="input-patient-notes" rows="4" placeholder="Enter baseline conditions, chronic context..."></textarea>
-            
+            <label for="input-important-directives">Important Directives</label>
+<input type="text" id="input-important-directives" placeholder="e.g., Do not administer morphine...">
             <button id="action-save-patient" class="btn btn-primary">Save Medical Profile</button>
             <button id="action-cancel-form" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
         </div>
@@ -251,6 +252,9 @@
             <div class="alert-box" style="background: #f5f3ff; border-color: #ede9fe; color: #5b21b6; padding: 12px; border-radius:6px; border:1px solid;">
                 <strong>⚖️ Special Directives:</strong> <br><span id="record-directives">None</span>
             </div>
+            <div class="alert-box" style="background: #fffbeb; border-color: #fef3c7; color: #92400e; padding: 12px; border-radius:6px; border:1px solid;">
+        <strong>📌 Important Directives:</strong> <br><span id="record-important">None</span>
+    </div>
         </div>
 
         <h3>Baseline Medical History Notes</h3>
@@ -542,6 +546,7 @@
         const directives = document.getElementById('input-patient-directives').value;
         const notes = document.getElementById('input-patient-notes').value.trim();
         const donor = document.getElementById('input-patient-donor').value;
+        const important = document.getElementById('input-important-directives').value.trim();
 
         if (!name) { alert("❌ Validation Error: Patient Name cannot be left blank."); return; }
         
@@ -572,7 +577,9 @@
             allergies: allergies,
             directives: directives,
             content: notes,
-            donor: donor
+            donor: donor,
+            importantDirectives: important
+           
         };
 
         db.ref('patients/' + activeCardID).update(profileData).then(() => {
@@ -628,6 +635,7 @@
         document.getElementById('record-directives').innerText = data.directives || 'None';
         document.getElementById('record-notes').innerText = data.content || 'No historical logs provided.';
         document.getElementById('record-donor').innerText = data.donor || 'N/A';
+        document.getElementById('record-important').innerText = data.importantDirectives || 'None';
 
         const timelineContainer = document.getElementById('session-history-timeline');
         timelineContainer.innerHTML = '';
@@ -702,6 +710,7 @@
             document.getElementById('input-patient-directives').value = data.directives || 'None';
             document.getElementById('input-patient-notes').value = data.content || '';
             document.getElementById('input-patient-donor').value = data.donor || '';
+            document.getElementById('input-important-directives').value = data.importantDirectives || '';
             
             showScreen('screen-create-patient');
         });
