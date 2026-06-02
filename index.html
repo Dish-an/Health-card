@@ -4,34 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedLink Patient Portal</title>
+    <!-- Google Fonts: Inter - Matches the geometric "Clean fonts" style from image_55fa74.png -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase Legacy SDKs (Kept exactly as original) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
         :root {
-            /* Core Theme Colors */
-            --med-navy: #1e293b;
-            --med-blue: #0284c7;
-            --med-teal: #0d9488;
-            --med-danger: #e11d48;
-            --med-bg: #f8fafc;
-            --med-card: #ffffff;
-            --med-text-main: #0f172a;
-            --med-text-muted: #64748b;
-            --med-border: #e2e8f0;
+            /* Peaceful clinical light mode colors */
+            --med-bg: #e8f5e9;              /* Peaceful mint green background */
+            --med-border: #c8e6c9;          /* Calm light-sage container borders */
+            --med-teal: #80cbc4;            /* Soft high-contrast medical teal highlight */
+            --med-navy: #1c2434;            /* High-legibility deep slate/navy blue from image_556468.png */
+            --med-blue: #1c2434;            /* Main blue brand color is the deep navy */
+            --med-danger: #e11d48;          /* Alert Crimson */
+            --med-card: #ffffff;            /* Warm pure clinical white container */
             
-            /* Extended UI Elements */
-            --med-input-bg: #f8fafc;
+            /* Text Hierarchy */
+            --med-text-main: #1c2434;       /* Pure slate-navy read-friendly text */
+            --med-text-muted: #475569;      /* Muted steel-blue */
+            
+            /* Extended Soothing UI Elements */
+            --med-input-bg: #fcfdfe;
             --med-input-focus-bg: #ffffff;
-            --med-box-bg: #f1f5f9;
-            --med-box-bg-alt: #f8fafc;
-            --med-hover-bg: #f0f9ff;
-            --med-icon-bg: #f1f5f9;
-            --med-icon-bg-hover: #e0f2fe;
-            --med-badge-bg: #e0f2fe;
-            --med-badge-text: #0369a1;
+            --med-box-bg: #f1f8f5;          /* Mint-gray box panels */
+            --med-box-bg-alt: #f4faf7;      /* Clean sage-tinted panels */
+            --med-hover-bg: #e8f5e9;        /* Soft sage accent hover highlight */
+            --med-icon-bg: #f0fdf4;
+            --med-icon-bg-hover: #c8e6c9;
+            --med-badge-bg: #c8e6c9;
+            --med-badge-text: #1b5e20;
 
-            /* Alert Boxes */
+            /* Alert Boxes (Low saturation, clear warning indicators) */
             --alert-danger-bg: #fef2f2;
             --alert-danger-border: #fee2e2;
             --alert-danger-text: #991b1b;
@@ -42,38 +50,41 @@
             --alert-warning-border: #fef3c7;
             --alert-warning-text: #92400e;
 
-            /* Clinical specific */
-            --doc-panel-bg: #f0f7ff;
-            --doc-panel-border: #bae6fd;
-            --doc-panel-title: #0369a1;
+            /* Clinical Logging specific variables */
+            --doc-panel-bg: #f4faf7;
+            --doc-panel-border: #cbd5e1;
+            --doc-panel-title: #0f766e;
             --timeline-card-bg: #ffffff;
-            --timeline-border-active: #3b82f6;
+            --timeline-border-active: #80cbc4;
+
+            /* Supporting custom sub-brand color (Forest Green) */
+            --med-sub-green: #223826;      /* Sub brand organic forest green requested */
         }
 
         body.dark-mode {
-            /* Core Theme Colors Overrides */
-            --med-navy: #93c5fd; 
-            --med-blue: #38bdf8;
-            --med-teal: #2dd4bf;
-            --med-danger: #fb7185;
-            --med-bg: #0f172a;
-            --med-card: #1e293b;
-            --med-text-main: #f8fafc;
-            --med-text-muted: #94a3b8;
-            --med-border: #334155;
+            /* Calm Clinical Dark Theme */
+            --med-bg: #170A16;              /* Deep dark eggplant/plum background */
+            --med-card: #231222;            /* Luxurious dark-violet clinical core */
+            --med-border: #3c203a;          /* Rich plum/berry framing borders */
+            --med-navy: #e8f5e9;            /* Light clinical mint-green for supreme readability */
+            --med-blue: #38bdf8;            /* Sky blue highlight */
+            --med-teal: #80cbc4;            /* Minty clinical teal highlights */
+            --med-danger: #f87171;          /* Calm rose-tinted warning text */
+            --med-text-main: #f8fafc;       /* Clean medical white text */
+            --med-text-muted: #cbd5e1;      /* Light clinical slate details */
 
-            /* Extended UI Elements Overrides */
-            --med-input-bg: #0f172a;
-            --med-input-focus-bg: #1e293b;
-            --med-box-bg: #334155;
-            --med-box-bg-alt: #1e293b;
-            --med-hover-bg: #111827;
-            --med-icon-bg: #334155;
-            --med-icon-bg-hover: #0f172a;
-            --med-badge-bg: #0f172a;
-            --med-badge-text: #38bdf8;
+            /* Dark Mode UI Element Overrides */
+            --med-input-bg: #170A16;
+            --med-input-focus-bg: #231222;
+            --med-box-bg: #2d182c;
+            --med-box-bg-alt: #170A16;
+            --med-hover-bg: #3d213b;
+            --med-icon-bg: #2d182c;
+            --med-icon-bg-hover: #170A16;
+            --med-badge-bg: #170A16;
+            --med-badge-text: #80cbc4;
 
-            /* Alert Boxes Overrides */
+            /* Alert Boxes Overrides for Dark Mode */
             --alert-danger-bg: #450a0a;
             --alert-danger-border: #7f1d1d;
             --alert-danger-text: #fca5a5;
@@ -84,16 +95,19 @@
             --alert-warning-border: #713f12;
             --alert-warning-text: #fcd34d;
 
-            /* Clinical specific Overrides */
-            --doc-panel-bg: #0f172a;
-            --doc-panel-border: #334155;
-            --doc-panel-title: #7dd3fc;
-            --timeline-card-bg: #1e293b;
-            --timeline-border-active: #60a5fa;
+            /* Clinical specific Overrides for Dark Mode */
+            --doc-panel-bg: #1d0f1c;
+            --doc-panel-border: #3c203a;
+            --doc-panel-title: #80cbc4;
+            --timeline-card-bg: #231222;
+            --timeline-border-active: #80cbc4;
+
+            /* Supporting dark mode forest green equivalent highlight */
+            --med-sub-green: #80cbc4;      
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--med-bg);
             color: var(--med-text-main);
             display: flex;
@@ -101,121 +115,426 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 24px;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -0.015em;
         }
+
         .med-container {
             background: var(--med-card);
-            padding: 40px;
-            border-radius: 12px;
-            border: 1px solid var(--med-border);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            max-width: 540px;
+            padding: 48px 40px;
+            border-radius: 20px;
+            border: 1.5px solid var(--med-border);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.01);
+            max-width: 560px;
             width: 100%;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        h2 { font-size: 24px; font-weight: 700; color: var(--med-navy); margin-top: 0; margin-bottom: 8px; text-align: center; }
-        h1.page-title { font-size: 28px; font-weight: 800; color: var(--med-blue); margin: 0 0 5px 0; text-align: left; }
-        p.subtitle { color: var(--med-text-muted); font-size: 14px; text-align: center; margin-bottom: 30px; line-height: 1.5; }
+
+        /* Smooth animation layout transitions */
+        @keyframes fadeUpIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .med-container > div:not(.hidden) {
+            animation: fadeUpIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        h2 { 
+            font-size: 26px; 
+            font-weight: 800; 
+            color: var(--med-navy); 
+            margin-top: 0; 
+            margin-bottom: 8px; 
+            text-align: center; 
+            letter-spacing: -0.03em;
+        }
+
+        h1.page-title { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: var(--med-blue); 
+            margin: 0 0 5px 0; 
+            text-align: left; 
+        }
+
+        p.subtitle { 
+            color: var(--med-text-muted); 
+            font-size: 14px; 
+            text-align: center; 
+            margin-bottom: 36px; 
+            line-height: 1.6; 
+            font-weight: 400;
+        }
         
+        /* Fixed Quick Action Buttons */
         .theme-toggle-btn {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             background: var(--med-card);
             color: var(--med-text-main);
-            border: 1px solid var(--med-border);
+            border: 1.5px solid var(--med-border);
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 20px;
+            width: 48px;
+            height: 48px;
+            font-size: 18px;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.2s ease;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s, border-color 0.3s;
             z-index: 1000;
         }
-        .theme-toggle-btn:hover { transform: scale(1.1); }
+        .theme-toggle-btn:hover { transform: scale(1.08); }
 
         .med-menu-card {
-            border: 2px solid var(--med-border); border-radius: 10px; padding: 30px 16px;
-            text-align: center; cursor: pointer; transition: all 0.2s ease-in-out;
-            background: var(--med-card); display: flex; flex-direction: column; align-items: center;
-            margin: 0 auto; max-width: 320px;
+            border: 2px solid var(--med-border); 
+            border-radius: 16px; 
+            padding: 36px 24px;
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--med-card); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            margin: 0 auto; 
+            max-width: 320px;
         }
-        .med-menu-card:hover { border-color: var(--med-blue); background: var(--med-hover-bg); transform: translateY(-2px); }
-        .med-menu-card h3 { margin: 14px 0 6px 0; font-size: 18px; font-weight: 600; color: var(--med-navy); }
-        .med-menu-card p { margin: 0; font-size: 13px; color: var(--med-text-muted); line-height: 1.4; }
+        .med-menu-card:hover { 
+            border-color: var(--med-teal); 
+            background: var(--med-hover-bg); 
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px -10px rgba(128, 203, 196, 0.35);
+        }
+        .med-menu-card h3 { 
+            margin: 18px 0 8px 0; 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: var(--med-navy); 
+            letter-spacing: -0.02em;
+        }
+        .med-menu-card p { 
+            margin: 0; 
+            font-size: 13px; 
+            color: var(--med-text-muted); 
+            line-height: 1.5; 
+        }
         .med-icon-circle {
-            width: 56px; height: 56px; background: var(--med-icon-bg); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
-            transition: background 0.2s ease;
+            width: 60px; 
+            height: 60px; 
+            background: var(--med-icon-bg); 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 26px;
+            transition: background 0.25s ease;
         }
-        .med-menu-card:hover .med-icon-circle { background: var(--med-icon-bg-hover); color: var(--med-blue); }
+        .med-menu-card:hover .med-icon-circle { 
+            background: var(--med-icon-bg-hover); 
+            color: var(--med-navy); 
+        }
         
         .admin-link-wrapper { text-align: center; margin-top: 40px; }
-        .admin-link-wrapper a { color: var(--med-text-muted); font-size: 13px; text-decoration: none; transition: color 0.15s ease; }
-        .admin-link-wrapper a:hover { color: var(--med-blue); text-decoration: underline; }
+        .admin-link-wrapper a { color: var(--med-text-muted); font-size: 13px; text-decoration: none; font-weight: 600; transition: color 0.15s ease; }
+        .admin-link-wrapper a:hover { color: var(--med-navy); text-decoration: underline; }
 
-        label { display: block; text-align: left; margin-top: 16px; font-weight: 600; font-size: 13px; color: var(--med-navy); text-transform: uppercase; }
-        input[type="text"], input[type="password"], input[type="number"], select, textarea {
-            width: 100%; padding: 12px; margin: 6px 0 12px 0;
-            border: 1px solid var(--med-border); border-radius: 6px; box-sizing: border-box; font-size: 15px;
-            background-color: var(--med-input-bg); color: var(--med-text-main);
-            transition: background-color 0.2s, border-color 0.2s;
+        label { 
+            display: block; 
+            text-align: left; 
+            margin-top: 20px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            color: var(--med-navy); 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em;
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--med-blue); background-color: var(--med-input-focus-bg); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        
+        input[type="text"], input[type="password"], input[type="number"], select, textarea {
+            width: 100%; 
+            padding: 14px; 
+            margin: 8px 0 16px 0;
+            border: 1.5px solid var(--med-border); 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 500;
+            background-color: var(--med-input-bg); 
+            color: var(--med-text-main);
+            transition: all 0.25s ease;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--med-teal); 
+            background-color: var(--med-input-focus-bg); 
+            box-shadow: 0 0 0 4px rgba(128, 203, 196, 0.25); 
+        }
         
         .btn {
-            color: white; border: none; padding: 14px 28px; font-size: 15px;
-            border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;
-            margin-top: 12px; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease; display: inline-block; text-align: center; box-sizing: border-box;
+            color: white; 
+            border: none; 
+            padding: 16px 28px; 
+            font-size: 15px;
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            width: 100%;
+            margin-top: 14px; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: inline-block; 
+            text-align: center; 
+            box-sizing: border-box;
+            letter-spacing: -0.01em;
         }
-        .btn-primary { background-color: var(--med-teal); }
-        .btn-secondary { background-color: transparent; color: var(--med-text-muted); border: 1px solid var(--med-border); }
-        .btn-secondary:hover { background-color: var(--med-box-bg); color: var(--med-navy); }
-        .btn-blue { background-color: var(--med-blue); }
-        .btn-warning { background-color: #d97706; }
+        
+        /* Main Brand Navy Blue Button (Identical style to the "Log In" button of image_556468.png) */
+        .btn-blue { 
+            background-color: var(--med-blue); 
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(28, 36, 52, 0.15);
+        }
+        .btn-blue:hover { 
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(28, 36, 52, 0.25);
+        }
+
+        /* Supporting Forest Green Buttons (For Register New Card & Change Admin Password) */
+        .btn-primary { 
+            background-color: var(--med-sub-green); 
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(34, 56, 38, 0.15);
+        }
+        .btn-primary:hover { 
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(34, 56, 38, 0.25);
+        }
+
+        /* Outline Cancel Buttons (Identical style to the "Cancel" button of image_556468.png) */
+        .btn-secondary { 
+            background-color: #ffffff; 
+            color: var(--med-navy); 
+            border: 1.5px solid var(--med-border); 
+            box-shadow: none;
+        }
+        .btn-secondary:hover { 
+            background-color: var(--med-hover-bg); 
+            border-color: var(--med-border);
+        }
+
+        /* Warning styles mapped to harmonious forest green sub theme */
+        .btn-warning { 
+            background-color: var(--med-sub-green); 
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(34, 56, 38, 0.1);
+        }
+        .btn-warning:hover {
+            opacity: 0.95;
+        }
         
         .hidden { display: none !important; }
-        .status-badge { margin-top: 25px; padding: 12px; border-radius: 6px; background: var(--med-box-bg); font-weight: 500; font-size: 13px; text-align: center; color: var(--med-text-muted); border: 1px solid var(--med-border); }
-        .scan-terminal-box { background: var(--med-box-bg-alt); border: 1px solid var(--med-border); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center; }
-        .divider-line { color: var(--med-text-muted); margin: 25px 0; display: flex; align-items: center; font-size: 12px; font-weight: 500; text-transform: uppercase; }
-        .divider-line::before, .divider-line::after { content: ""; flex: 1; background: var(--med-border); height: 1px; margin: 0 15px; }
-        .clinical-badge { font-family: monospace; background: var(--med-badge-bg); color: var(--med-badge-text); padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; }
-        .clinical-feed { text-align: left; margin-top: 20px; max-height: 300px; overflow-y: auto; border: 1px solid var(--med-border); border-radius: 6px; background: var(--med-box-bg-alt); }
-        .feed-row { padding: 14px 18px; border-bottom: 1px solid var(--med-border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .feed-row:hover { background: var(--med-hover-bg); }
-        
-        .vitals-grid { display: flex; gap: 12px; background: var(--med-box-bg); padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; justify-content: space-between; }
-        .form-row-three { display: flex; gap: 10px; }
-        .form-row-three > div { flex: 1; }
-        .timeline-container { margin-top: 15px; }
 
-        /* Structural Classes for Theming dynamically created elements */
-        .alert-box { padding: 12px; border-radius:6px; border:1px solid; }
+        .status-badge { 
+            margin-top: 24px; 
+            padding: 14px; 
+            border-radius: 10px; 
+            background: var(--med-box-bg); 
+            font-weight: 600; 
+            font-size: 13px; 
+            text-align: center; 
+            color: var(--med-text-muted); 
+            border: 1.5px solid var(--med-border); 
+        }
+
+        .scan-terminal-box { 
+            background: var(--med-box-bg-alt); 
+            border: 1.5px solid var(--med-border); 
+            padding: 30px; 
+            border-radius: 14px; 
+            margin-bottom: 24px; 
+            text-align: center; 
+        }
+
+        .divider-line { 
+            color: var(--med-text-muted); 
+            margin: 28px 0; 
+            display: flex; 
+            align-items: center; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em;
+        }
+        .divider-line::before, .divider-line::after { 
+            content: ""; 
+            flex: 1; 
+            background: var(--med-border); 
+            height: 1.5px; 
+            margin: 0 15px; 
+        }
+
+        .clinical-badge { 
+            font-family: monospace; 
+            background: var(--med-badge-bg); 
+            color: var(--med-badge-text); 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            border: 1.5px solid rgba(27, 94, 32, 0.1);
+        }
+
+        .clinical-feed { 
+            text-align: left; 
+            margin-top: 24px; 
+            max-height: 280px; 
+            overflow-y: auto; 
+            border: 1.5px solid var(--med-border); 
+            border-radius: 12px; 
+            background: var(--med-box-bg-alt); 
+        }
+
+        .feed-row { 
+            padding: 16px 20px; 
+            border-bottom: 1.5px solid var(--med-border); 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: background 0.2s ease;
+        }
+        .feed-row:hover { 
+            background: var(--med-hover-bg); 
+        }
+        
+        .vitals-grid { 
+            display: flex; 
+            gap: 12px; 
+            background: var(--med-box-bg); 
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            justify-content: space-between; 
+            border: 1.5px solid var(--med-border);
+        }
+        .form-row-three { display: flex; gap: 12px; }
+        .form-row-three > div { flex: 1; }
+        .timeline-container { margin-top: 20px; }
+
+        /* Structural alert wrappers (peaceful, clear alerts) */
+        .alert-box { 
+            padding: 16px; 
+            border-radius: 12px; 
+            border: 1.5px solid; 
+            font-size: 13px;
+            line-height: 1.5;
+        }
         .alert-danger { background: var(--alert-danger-bg); border-color: var(--alert-danger-border); color: var(--alert-danger-text); }
         .alert-info { background: var(--alert-info-bg); border-color: var(--alert-info-border); color: var(--alert-info-text); }
         .alert-warning { background: var(--alert-warning-bg); border-color: var(--alert-warning-border); color: var(--alert-warning-text); }
         
-        .doctor-panel-box { background: var(--doc-panel-bg); border: 1px solid var(--doc-panel-border); padding: 20px; border-radius: 8px; margin-top: 30px; }
-        .doctor-panel-box h3 { color: var(--doc-panel-title); margin-top: 0; text-align: left; }
+        .doctor-panel-box { 
+            background: var(--doc-panel-bg); 
+            border: 1.5px solid var(--doc-panel-border); 
+            padding: 24px; 
+            border-radius: 16px; 
+            margin-top: 36px; 
+        }
+        .doctor-panel-box h3 { 
+            color: var(--doc-panel-title); 
+            margin-top: 0; 
+            text-align: left; 
+            font-size: 16px;
+            font-weight: 800;
+        }
         
         .session-timeline-card {
-            background: var(--timeline-card-bg); padding: 15px; border: 1px solid var(--med-border); border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; text-align: left;
+            background: var(--timeline-card-bg); 
+            padding: 18px; 
+            border: 1.5px solid var(--med-border); 
+            border-radius: 12px; 
+            margin-bottom: 14px; 
+            cursor: pointer; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            text-align: left;
         }
-        .session-timeline-card.expanded { border-color: var(--timeline-border-active); }
-        .session-timeline-card .session-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--med-blue); }
-        .session-timeline-card .session-time { font-size: 12px; color: var(--med-text-muted); }
-        .session-timeline-card .expandable-content { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--med-border); }
-        .session-timeline-card .click-hint { font-size: 11px; color: var(--med-text-muted); text-align: right; margin-top: 6px; }
+        .session-timeline-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border-color: var(--med-teal);
+        }
+        .session-timeline-card.expanded { 
+            border-color: var(--timeline-border-active); 
+            box-shadow: 0 6px 16px rgba(128, 203, 196, 0.15);
+        }
+        .session-timeline-card .session-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 700; 
+            color: var(--med-navy); 
+            font-size: 14px;
+        }
+        .session-timeline-card .session-time { 
+            font-size: 12px; 
+            color: var(--med-text-muted); 
+            font-weight: 500;
+        }
+        .session-timeline-card .expandable-content { 
+            margin-top: 12px; 
+            padding-top: 12px; 
+            border-top: 1.5px dashed var(--med-border); 
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .session-timeline-card .click-hint { 
+            font-size: 11px; 
+            color: var(--med-text-muted); 
+            text-align: right; 
+            margin-top: 8px; 
+            font-weight: 600;
+        }
 
+        /* Custom beautiful alert banner to replace browser alert popups */
+        .custom-banner-toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #1c2434;
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2000;
+            max-width: 90%;
+            width: max-content;
+        }
+        .custom-banner-toast.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+
+<!-- Modern secure notification overlay replaces standard blocking alerts -->
+<div id="custom-banner-toast-element" class="custom-banner-toast">
+    <span id="custom-toast-icon">ℹ️</span>
+    <span id="custom-toast-text">Setup placeholder content</span>
+</div>
 
 <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Dark Mode">🌓</button>
 
@@ -236,7 +555,7 @@
         </div>
     </div>
 
-    <!-- SECURITY LOGIN DISPATCH BOX -->
+    <!-- SECURITY LOGIN DISPATCH BOX (Strictly matches layout styling of image_556468.png) -->
     <div id="view-admin-login" class="hidden">
         <h2>Administrator Login</h2>
         <p class="subtitle">Please enter the password to access the patient database.</p>
@@ -347,7 +666,7 @@
             <label for="input-important-directives">Important Directives</label>
             <input type="text" id="input-important-directives" placeholder="e.g., Do not administer morphine...">
             
-            <button id="action-save-patient" class="btn btn-primary">Save Medical Profile</button>
+            <button id="action-save-patient" class="btn btn-blue">Save Medical Profile</button>
             <button id="action-cancel-form" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
         </div>
     </div>
@@ -380,7 +699,7 @@
         </div>
 
         <h3>Baseline Medical History Notes</h3>
-        <p id="record-notes" style="background:var(--med-box-bg-alt); padding:15px; border-radius:6px; font-size:14px; line-height:1.6; border: 1px solid var(--med-border); white-space: pre-wrap;">--</p>
+        <p id="record-notes" style="background:var(--med-box-bg-alt); padding:15px; border-radius:6px; font-size:14px; line-height:1.6; border: 1.5px solid var(--med-border); white-space: pre-wrap;">--</p>
 
         <!-- 🩺 CLINICAL SESSION LOGGING DESK -->
         <div class="doctor-panel-box">
@@ -407,7 +726,7 @@
                     <input type="password" id="input-doctor-key" placeholder="Enter security verification key">
                 </div>
                 <div style="display: flex; align-items: flex-end;">
-                    <button id="action-submit-session" class="btn btn-primary" style="width: 100%; height: 46px; margin-top: 0;">Sign &amp; Authenticate</button>
+                    <button id="action-submit-session" class="btn btn-blue" style="width: 100%; height: 46px; margin-top: 0;">Sign &amp; Authenticate</button>
                 </div>
             </div>
         </div>
@@ -432,6 +751,22 @@
 </div>
 
 <script>
+    // Custom Toast banner to gracefully replace intrusive alerts with 100% reliability
+    function showNotification(message, icon = 'ℹ️') {
+        const toast = document.getElementById('custom-banner-toast-element');
+        const iconEl = document.getElementById('custom-toast-icon');
+        const textEl = document.getElementById('custom-toast-text');
+        
+        iconEl.innerText = icon;
+        textEl.innerText = message;
+        
+        toast.classList.add('active');
+        
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 4000);
+    }
+
     // Theme Toggle Logic
     const themeToggleBtn = document.getElementById('theme-toggle');
     
@@ -457,7 +792,6 @@
         }
     });
 
-
     // Global Security Verification Registry & Whitelists
     const DOCTOR_REGISTRY = {
         "doc1": "Dr. Raj (Cardiology)",
@@ -482,8 +816,9 @@
         "Tartrazine", "Gelatin", "Formaldehyde", "Other"
     ];
 
+    // Crash safety interceptor using peaceful custom banner
     window.onerror = function(msg, url, line) {
-        alert("🚨 JavaScript Setup Error Detected:\n\n" + msg + "\n\nLine number: " + line);
+        showNotification("JavaScript Setup Error Detected at line " + line + ": " + msg, "🚨");
         return false;
     };
 
@@ -505,7 +840,7 @@
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
         } else {
-            alert("❌ Network Error: Firebase script failed to load from CDN. Ensure you have an active internet connection.");
+            showNotification("Network Error: Firebase script failed to load from CDN. Ensure you have an active internet connection.", "❌");
         }
     } catch(err) {
         console.error("Firebase Initialization Failure: ", err);
@@ -515,6 +850,7 @@
     let activeCardID = null;
     let isAdminLoggedIn = false;
 
+    // View Navigation Function
     function showScreen(screenId) {
         const screens = [
             'view-homepage', 'view-admin-login', 'view-admin-dashboard', 
@@ -533,6 +869,7 @@
         }
     }
 
+    // --- 1. HOMEPAGE & LOGIN FLOW ---
     document.getElementById('menu-opt-read').addEventListener('click', () => {
         currentMode = 'READ';
         document.getElementById('scanner-title').innerText = "Scan Patient Card";
@@ -549,7 +886,7 @@
     document.getElementById('action-cancel-login').addEventListener('click', () => showScreen('view-homepage'));
 
     document.getElementById('action-login').addEventListener('click', () => {
-        if (!db) { alert("Database connection unavailable."); return; }
+        if (!db) { showNotification("Database connection unavailable.", "❌"); return; }
         const enteredPassword = document.getElementById('admin-login-password').value;
         
         db.ref('system/admin_password').once('value').then((snapshot) => {
@@ -558,15 +895,16 @@
                 isAdminLoggedIn = true;
                 loadAdminDashboard();
             } else {
-                alert("Incorrect password. Please try again.");
+                showNotification("Incorrect password. Please try again.", "⚠️");
             }
         });
     });
 
+    // --- 2. ADMIN DASHBOARD FLOW ---
     function loadAdminDashboard() {
-        if (!db) { alert("Database connection offline."); return; }
+        if (!db) { showNotification("Database connection offline.", "❌"); return; }
         const directory = document.getElementById('patient-directory');
-        directory.innerHTML = '<p style="text-align:center; padding: 20px;">Loading records...</p>';
+        directory.innerHTML = '<p style="text-align:center; padding: 20px; font-size:13px; color:var(--med-text-muted);">Loading records...</p>';
         
         db.ref('patients').once('value').then((snapshot) => {
             directory.innerHTML = '';
@@ -608,6 +946,7 @@
         showScreen('view-scanner');
     });
 
+    // --- 3. SCANNER LOGIC ---
     const desktopInput = document.getElementById('desktop-hidden-input');
     if (desktopInput) {
         desktopInput.addEventListener('keydown', (e) => {
@@ -646,7 +985,7 @@
     });
 
     function processScannedCard(cardID) {
-        if (!db) { alert("Database connection failure."); return; }
+        if (!db) { showNotification("Database connection failure.", "❌"); return; }
         activeCardID = cardID;
         
         if (currentMode === 'CREATE') {
@@ -676,8 +1015,9 @@
         }
     }
 
+    // --- 4. SAVE PATIENT PROFILE ---
     document.getElementById('action-save-patient').addEventListener('click', () => {
-        if (!db) { alert("Database interaction error."); return; }
+        if (!db) { showNotification("Database interaction error.", "❌"); return; }
         
         const name = document.getElementById('input-patient-name').value.trim();
         const ageRaw = document.getElementById('input-patient-age').value.trim();
@@ -689,26 +1029,26 @@
         const donor = document.getElementById('input-patient-donor').value;
         const important = document.getElementById('input-important-directives').value.trim();
 
-        if (!name) { alert("❌ Validation Error: Patient Name cannot be left blank."); return; }
+        if (!name) { showNotification("❌ Validation Error: Patient Name cannot be left blank.", "⚠️"); return; }
         
         const age = parseInt(ageRaw, 10);
         if (isNaN(age) || age < 0 || age > 125) { 
-            alert("❌ Validation Error: Please input a verified age calculation between 0 and 125."); 
+            showNotification("❌ Validation Error: Please input a verified age calculation between 0 and 125.", "⚠️"); 
             return; 
         }
         
         if (!gender || !ALLOWED_GENDERS.includes(gender)) { 
-            alert(`❌ Validation Error: "${gender || 'Blank'}" is rejected.\n\nYou must explicitly write or match one of the standard list entries.`); 
+            showNotification(`❌ Validation Error: "${gender || 'Blank'}" is rejected.\n\nYou must explicitly write or match one of the standard list entries.`, "⚠️"); 
             return; 
         }
         
         if (!allergies || !ALLOWED_ALLERGIES.includes(allergies)) {
-            alert("❌ Validation Error: Inputted allergy does not match verified vocabulary index profile.");
+            showNotification("❌ Validation Error: Inputted allergy does not match verified vocabulary index profile.", "⚠️");
             return;
         }
         
-        if (!bloodType) { alert("❌ Validation Error: Please select an official standard Blood Group classification."); return; }
-        if (!notes) { alert("❌ Validation Error: Baseline history conditions matrix log cannot be empty."); return; }
+        if (!bloodType) { showNotification("❌ Validation Error: Please select an official standard Blood Group classification.", "⚠️"); return; }
+        if (!notes) { showNotification("❌ Validation Error: Baseline history conditions matrix log cannot be empty.", "⚠️"); return; }
 
         const profileData = {
             title: name,
@@ -723,24 +1063,26 @@
         };
 
         db.ref('patients/' + activeCardID).update(profileData).then(() => {
+            showNotification("Patient medical profile saved successfully.", "✅");
             loadAdminDashboard();
         });
     });
 
+    // --- 5. SUBMIT EVALUATION RECENT VISIT ---
     document.getElementById('action-submit-session').addEventListener('click', () => {
-        if (!db) { alert("Database interaction error."); return; }
+        if (!db) { showNotification("Database interaction error.", "❌"); return; }
 
         const selectedDocKey = document.getElementById('input-doctor-select').value;
         const diagnosis = document.getElementById('input-visit-diagnosis').value.trim();
         const visitNotes = document.getElementById('input-visit-notes').value.trim();
         const docKey = document.getElementById('input-doctor-key').value.trim();
 
-        if (!selectedDocKey) { alert("⚠️ Verification Intercept: Please select an Attending Doctor from the dropdown."); return; }
-        if (!diagnosis) { alert("⚠️ Verification Intercept: A Primary Session Diagnosis entry is required."); return; }
-        if (!visitNotes) { alert("⚠️ Verification Intercept: Consultation treatment activity logs cannot be empty."); return; }
+        if (!selectedDocKey) { showNotification("⚠️ Verification Intercept: Please select an Attending Doctor from the dropdown.", "⚠️"); return; }
+        if (!diagnosis) { showNotification("⚠️ Verification Intercept: A Primary Session Diagnosis entry is required.", "⚠️"); return; }
+        if (!visitNotes) { showNotification("⚠️ Verification Intercept: Consultation treatment activity logs cannot be empty.", "⚠️"); return; }
         
         if (!docKey || docKey !== selectedDocKey) {
-            alert("⚠️ Security System Violation: Incorrect or unauthorized Doctor Verification Key for the selected physician.");
+            showNotification("⚠️ Security System Violation: Incorrect or unauthorized Doctor Verification Key for the selected physician.", "🚨");
             return;
         }
 
@@ -752,7 +1094,7 @@
         };
 
         db.ref('patients/' + activeCardID + '/visits').push(sessionObject).then(() => {
-            alert(`✅ Session verified & securely written via identity: ${DOCTOR_REGISTRY[selectedDocKey]}!`);
+            showNotification(`✅ Session verified & securely written via identity: ${DOCTOR_REGISTRY[selectedDocKey]}!`, "✅");
             document.getElementById('input-doctor-select').value = '';
             document.getElementById('input-visit-diagnosis').value = '';
             document.getElementById('input-visit-notes').value = '';
@@ -764,6 +1106,7 @@
         });
     });
 
+    // --- 6. RENDER INTERACTIVE DATA LAYOUT ---
     function openPatientRecord(data, showEditButton) {
         document.getElementById('record-name').innerText = data.title || 'Profile Unidentified';
         document.getElementById('record-age').innerText = data.age || 'N/A';
@@ -784,15 +1127,14 @@
                 const card = document.createElement('div');
                 card.className = 'session-timeline-card';
                 
-                // Uses CSS classes instead of inline styles for Dark Mode compatibility
                 card.innerHTML = `
                     <div class="session-header">
                         <span>👨‍⚕️ ${visit.attendingDoctor}</span>
                         <span class="session-time">${visit.timestamp}</span>
                     </div>
                     <div class="expandable-content" style="display: none;">
-                        <p style="margin: 4px 0;"><strong>🎯 Session Primary Diagnosis:</strong> <span style="color: var(--med-danger); font-weight: 600;">${visit.primaryDiagnosis}</span></p>
-                        <p style="margin: 6px 0 4px 0; line-height:1.4;"><strong>📝 Consultation Notes:</strong> ${visit.sessionNotes}</p>
+                        <p style="margin: 8px 0 4px 0;"><strong>🎯 Session Primary Diagnosis:</strong> <span style="color: var(--med-danger); font-weight: 600;">${visit.primaryDiagnosis}</span></p>
+                        <p style="margin: 6px 0 4px 0; line-height:1.5; color: var(--med-text-main);"><strong>📝 Consultation Notes:</strong> ${visit.sessionNotes}</p>
                     </div>
                     <div class="click-hint">Click panel component to expand trace data</div>
                 `;
@@ -832,8 +1174,9 @@
         showScreen('screen-view-record');
     }
 
+    // --- 7. MODIFICATION / AUTOFILL ROUTINE ---
     document.getElementById('action-edit-record').addEventListener('click', () => {
-        if (!db) { alert("Database reference error."); return; }
+        if (!db) { showNotification("Database reference error.", "❌"); return; }
         db.ref('patients/' + activeCardID).once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             document.getElementById('form-title-text').innerText = "Edit Patient Details";
@@ -863,6 +1206,7 @@
         else showScreen('view-homepage');
     });
 
+    // --- 8. ADMIN PASSWORD MANAGEMENT ---
     document.getElementById('action-go-to-change-pw').addEventListener('click', () => {
         document.getElementById('pw-current').value = '';
         document.getElementById('pw-new').value = '';
@@ -872,17 +1216,17 @@
     document.getElementById('action-cancel-password').addEventListener('click', () => loadAdminDashboard());
 
     document.getElementById('action-save-password').addEventListener('click', () => {
-        if (!db) { alert("Database offline."); return; }
+        if (!db) { showNotification("Database offline.", "❌"); return; }
         const currentInput = document.getElementById('pw-current').value;
         const newInput = document.getElementById('pw-new').value.trim();
 
         db.ref('system/admin_password').once('value').then((snapshot) => {
             let actualPassword = snapshot.val() || 'admin123';
-            if (currentInput !== actualPassword) { alert("Incorrect current password."); return; }
-            if (!newInput) { alert("Please enter a valid password."); return; }
+            if (currentInput !== actualPassword) { showNotification("Incorrect current password.", "⚠️"); return; }
+            if (!newInput) { showNotification("Please enter a valid password.", "⚠️"); return; }
 
             db.ref('system/admin_password').set(newInput).then(() => {
-                alert("Password updated.");
+                showNotification("Password updated successfully.", "✅");
                 loadAdminDashboard();
             });
         });
