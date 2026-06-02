@@ -39,16 +39,20 @@
             --med-badge-bg: #c8e6c9;
             --med-badge-text: #1b5e20;
 
-            /* Alert Boxes (Low saturation, clear warning indicators) */
-            --alert-danger-bg: #fef2f2;
-            --alert-danger-border: #fee2e2;
-            --alert-danger-text: #991b1b;
-            --alert-info-bg: #f5f3ff;
-            --alert-info-border: #ede9fe;
-            --alert-info-text: #5b21b6;
-            --alert-warning-bg: #fffbeb;
-            --alert-warning-border: #fef3c7;
-            --alert-warning-text: #92400e;
+            /* Button Color Overrides */
+            --med-btn-secondary-bg: #ffffff;
+            --med-btn-secondary-border: var(--med-border);
+
+            /* Light Mode User File Warning alerts specified exactly with #990000 */
+            --alert-danger-bg: #fff5f5;
+            --alert-danger-border: #fecaca;
+            --alert-danger-text: #990000;
+            --alert-info-bg: #fff5f5;
+            --alert-info-border: #fecaca;
+            --alert-info-text: #990000;
+            --alert-warning-bg: #fff5f5;
+            --alert-warning-border: #fecaca;
+            --alert-warning-text: #990000;
 
             /* Clinical Logging specific variables */
             --doc-panel-bg: #f4faf7;
@@ -62,45 +66,49 @@
         }
 
         body.dark-mode {
-            /* Calm Clinical Dark Theme */
-            --med-bg: #170A16;              /* Deep dark eggplant/plum background */
-            --med-card: #231222;            /* Luxurious dark-violet clinical core */
-            --med-border: #3c203a;          /* Rich plum/berry framing borders */
-            --med-navy: #e8f5e9;            /* Light clinical mint-green for supreme readability */
-            --med-blue: #38bdf8;            /* Sky blue highlight */
+            /* Calm Clinical Dark Theme - Beautiful Navy Slate Harmony matching the admin room perfectly */
+            --med-bg: #0a0e17;              /* Deep luxury slate-navy background */
+            --med-card: #131a26;            /* Clean dark slate-navy container */
+            --med-border: #222d3d;          /* Polished navy-border framing */
+            --med-navy: #f8fafc;            /* Light clinical mint-green for supreme readability */
+            --med-blue: #1c2434;            /* Matches the clean dark slate navy of image_556468.png */
             --med-teal: #80cbc4;            /* Minty clinical teal highlights */
             --med-danger: #f87171;          /* Calm rose-tinted warning text */
             --med-text-main: #f8fafc;       /* Clean medical white text */
-            --med-text-muted: #cbd5e1;      /* Light clinical slate details */
+            --med-text-muted: #94a3b8;      /* Light clinical slate details */
 
             /* Dark Mode UI Element Overrides */
-            --med-input-bg: #170A16;
-            --med-input-focus-bg: #231222;
-            --med-box-bg: #2d182c;
-            --med-box-bg-alt: #170A16;
-            --med-hover-bg: #3d213b;
-            --med-icon-bg: #2d182c;
-            --med-icon-bg-hover: #170A16;
-            --med-badge-bg: #170A16;
+            --med-input-bg: #0a0e17;
+            --med-input-focus-bg: #131a26;
+            --med-box-bg: #1e293b;
+            --med-box-bg-alt: #0a0e17;
+            --med-hover-bg: #1e293b;
+            --med-icon-bg: #1e293b;
+            --med-icon-bg-hover: #0a0e17;
+            --med-badge-bg: #1e293b;
             --med-badge-text: #80cbc4;
 
-            /* Alert Boxes Overrides for Dark Mode */
-            --alert-danger-bg: #450a0a;
-            --alert-danger-border: #7f1d1d;
+            /* Button Color Overrides */
+            --med-btn-secondary-bg: #131a26;
+            --med-btn-secondary-border: #222d3d;
+
+            /* Restful, calm Alert Boxes Overrides for Dark Mode */
+            --alert-danger-bg: #3b1414;
+            --alert-danger-border: #5a1e1e;
             --alert-danger-text: #fca5a5;
-            --alert-info-bg: #2e1065;
-            --alert-info-border: #4c1d95;
-            --alert-info-text: #d8b4fe;
-            --alert-warning-bg: #422006;
-            --alert-warning-border: #713f12;
+            --alert-info-bg: #1a233a;
+            --alert-info-border: #2d3b5a;
+            --alert-info-text: #cbd5e1;
+            --alert-warning-bg: #2d1f10;
+            --alert-warning-border: #4a341a;
             --alert-warning-text: #fcd34d;
 
             /* Clinical specific Overrides for Dark Mode */
-            --doc-panel-bg: #1d0f1c;
-            --doc-panel-border: #3c203a;
-            --doc-panel-title: #80cbc4;
-            --timeline-card-bg: #231222;
-            --timeline-border-active: #80cbc4;
+            --doc-panel-bg: #131a26;
+            --doc-panel-border: #222d3d;
+            --doc-panel-title: #80cbc4;     /* Minty clinical title instead of bright blue */
+            --timeline-card-bg: #131a26;
+            --timeline-border-active: #80cbc4; /* Clean minty border instead of bright blue */
 
             /* Supporting dark mode forest green equivalent highlight */
             --med-sub-green: #80cbc4;      
@@ -169,7 +177,6 @@
             font-weight: 400;
         }
         
-        /* Fixed Quick Action Buttons */
         .theme-toggle-btn {
             position: fixed;
             top: 24px;
@@ -297,6 +304,7 @@
         .btn-blue { 
             background-color: var(--med-blue); 
             color: #ffffff;
+            border: 1.5px solid var(--med-border);
             box-shadow: 0 4px 12px rgba(28, 36, 52, 0.15);
         }
         .btn-blue:hover { 
@@ -308,6 +316,7 @@
         .btn-primary { 
             background-color: var(--med-sub-green); 
             color: #ffffff;
+            border: 1.5px solid var(--med-border);
             box-shadow: 0 4px 12px rgba(34, 56, 38, 0.15);
         }
         .btn-primary:hover { 
@@ -317,9 +326,9 @@
 
         /* Outline Cancel Buttons (Identical style to the "Cancel" button of image_556468.png) */
         .btn-secondary { 
-            background-color: #ffffff; 
+            background-color: var(--med-btn-secondary-bg); 
             color: var(--med-navy); 
-            border: 1.5px solid var(--med-border); 
+            border: 1.5px solid var(--med-btn-secondary-border); 
             box-shadow: none;
         }
         .btn-secondary:hover { 
@@ -331,6 +340,7 @@
         .btn-warning { 
             background-color: var(--med-sub-green); 
             color: #ffffff;
+            border: 1.5px solid var(--med-border);
             box-shadow: 0 4px 12px rgba(34, 56, 38, 0.1);
         }
         .btn-warning:hover {
