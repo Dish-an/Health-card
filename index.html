@@ -882,6 +882,9 @@
 <script>
     // Maximum file size: 1 MB
     const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB in bytes
+    
+    // Allowed file extensions (check by extension instead of MIME type for better compatibility)
+    const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'txt'];
 
     // Custom Toast banner to gracefully replace intrusive alerts with 100% reliability
     function showNotification(message, icon = 'ℹ️') {
@@ -1237,8 +1240,12 @@
                 continue;
             }
             
-            const supportedFormats = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-            if (!supportedFormats.includes(file.type)) {
+            // Get file extension
+            const fileName = file.name.toLowerCase();
+            const fileExtension = fileName.split('.').pop();
+            
+            // Check if extension is allowed
+            if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
                 showNotification(`Unsupported format: "${file.name}". Supported: PDF, JPG, PNG, DOC, DOCX, TXT`, "⚠️");
                 continue;
             }
@@ -1491,14 +1498,31 @@
             return;
         }
         
-        // Delete from storage
-        const filePath = `patient-documents/${cardID}/${docName}`;
-        storage.ref(filePath).delete().then(() => {
-            showNotification("Document deleted successfully.", "✅");
-            // Refresh the record
-            db.ref('patients/' + cardID).once('value').then((snap) => {
-                openPatientRecord(snap.val(), true);
-            });
+        // Delete from storage - need to find the exact file path
+        db.ref('patients/' + cardID + '/visits').once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                let fileFound = false;
+                let visitsData = snapshot.val();
+                
+                // Search through all visits to find and remove the document reference
+                Object.keys(visitsData).forEach(visitId => {
+                    const visit = visitsData[visitId];
+                    if (visit.documents) {
+                        visit.documents = visit.documents.filter(doc => doc.name !== docName);
+                        db.ref('patients/' + cardID + '/visits/' + visitId).update(visit).then(() => {
+                            fileFound = true;
+                        });
+                    }
+                });
+                
+                if (fileFound) {
+                    showNotification("Document deleted successfully.", "✅");
+                    // Refresh the record
+                    db.ref('patients/' + cardID).once('value').then((snap) => {
+                        openPatientRecord(snap.val(), true);
+                    });
+                }
+            }
         }).catch((error) => {
             showNotification("Error deleting document: " + error.message, "❌");
         });
